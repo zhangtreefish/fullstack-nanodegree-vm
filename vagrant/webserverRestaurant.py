@@ -4,7 +4,6 @@ from manyRestaurants import restaurant_list
 
 
 class webServerHandler(BaseHTTPRequestHandler):
-
     def do_GET(self):
         try:
             if self.path.endswith("/restaurants"):
@@ -14,12 +13,13 @@ class webServerHandler(BaseHTTPRequestHandler):
 
                 output = ""
                 output += "<html><body>"
-                output += "<h1> Restaurants"
+                output += "<h1> My Restaurants"
                 for restaurant in restaurant_list:
-                    output += "<h2>"+restaurant.name+"</h2>"
+                    output += "<h2>"+restaurant.name+ "<h4><a href=''> EDIT </a></h4><h4><a href=''> DELETE </a></h4>"+"</h2>"
+                    # "<a href=''> EDIT </a>"+ "<a href=''> DELETE </a>"
                 output += "</h1>"
                 output += "</body></html>"
-                # self.wfile.write(output)
+                self.wfile.write(output)
                 # print output
                 return
 
