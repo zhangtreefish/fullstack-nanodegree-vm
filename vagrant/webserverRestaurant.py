@@ -1,9 +1,6 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import cgi
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from database_setup import Restaurant, MenuItem, Base
+from manyRestaurants import restaurant_list
 
 
 class webServerHandler(BaseHTTPRequestHandler):
@@ -15,20 +12,6 @@ class webServerHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
 
-                engine = create_engine('sqlite:///restaurantmenu.db')
-                Base.metadata.bind = engine
-                DBSession = sessionmaker(bind=engine)
-                session = DBSession()
-
-                myFirstRestaurant = Restaurant(name='steam')
-                mySecondRestaurant = Restaurant(name='3Fs')
-                myThirdRestaurant = Restaurant(name='Eden')
-                session.add(myFirstRestaurant)
-                session.add(mySecondRestaurant)
-                session.add(myThirdRestaurant)
-                session.commit()
-                restaurant_list=session.query(Restaurant).all()
-
                 output = ""
                 output += "<html><body>"
                 output += "<h1> Restaurants"
@@ -36,8 +19,8 @@ class webServerHandler(BaseHTTPRequestHandler):
                     output += "<h2>"+restaurant.name+"</h2>"
                 output += "</h1>"
                 output += "</body></html>"
-                self.wfile.write(output)
-                print output
+                # self.wfile.write(output)
+                # print output
                 return
 
             if self.path.endswith("/hola"):
