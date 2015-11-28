@@ -1,6 +1,6 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import cgi
-from manyRestaurants import restaurant_list
+from manyRestaurants import restaurant_list,Restaurant, session
 
 
 class webServerHandler(BaseHTTPRequestHandler):
@@ -15,22 +15,27 @@ class webServerHandler(BaseHTTPRequestHandler):
                 output += "<html><body>"
                 output += "<h1> My Restaurants"
                 for restaurant in restaurant_list:
-                    output += "<h2>"+restaurant.name+ "<h4><a href=''> EDIT </a></h4><h4><a href=''> DELETE </a></h4>"+"</h2>"
+                    output += "<h2>"+restaurant.name+ "<h4><a href='#'> EDIT </a></h4><h4><a href='#'> DELETE </a></h4>"+"</h2>"
                     # "<a href=''> EDIT </a>"+ "<a href=''> DELETE </a>"
                 output += "</h1>"
+                # the next 3 lines makes the page blank
+                # output += " <h2> Create a new restaurant of your favorite kind: </h2>"
+                # output += "<h1> %s </h1>" % messagecontent[0]
+                # output += '''<form method='POST' enctype='multipart/form-data' action='/restaurants'><h2>So you created:</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+
                 output += "</body></html>"
                 self.wfile.write(output)
                 # print output
                 return
 
-            if self.path.endswith("/hola"):
+            if self.path.endswith("/restaurants/new"):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
                 output = ""
                 output += "<html><body>"
-                output += "<h1>&#161 Hola !</h1>"
-                output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+                output += "<h2>Hola! Create a new restaurant of your favorite kind:</h2>"
+                output += '''<form method='POST' enctype='multipart/form-data' action='/restaurants/new'><h2>So you created:</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
                 output += "</body></html>"
                 self.wfile.write(output)
                 print output
@@ -51,12 +56,20 @@ class webServerHandler(BaseHTTPRequestHandler):
                 messagecontent = fields.get('message')
             output = ""
             output += "<html><body>"
-            output += " <h2> Okay, how about this: </h2>"
+            output += " <h2> Created a new restaurant of your favorite kind: </h2>"
             output += "<h1> %s </h1>" % messagecontent[0]
-            output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+
+            myNewRestaurant = Restaurant(name=messagecontent[0])
+            session.add(myNewRestaurant)
+            session.commit()
+            new_restaurant_list=session.query(Restaurant).all()
+            for res in new_restaurant_list:
+                print res.name
+
+            output += '''<form method='POST' enctype='multipart/form-data' action='/restaurants/new'><h2>And more restaurants you have dreamt to create:</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
             output += "</body></html>"
             self.wfile.write(output)
-            print output
+            # print output
         except:
             pass
 
