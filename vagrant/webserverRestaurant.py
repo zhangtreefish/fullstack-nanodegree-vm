@@ -17,7 +17,10 @@ class webServerHandler(BaseHTTPRequestHandler):
                 # By adding this next line the newly posted restaurant shows up at the /restaurant page
                 restaurant_list=session.query(Restaurant).all()
                 for restaurant in restaurant_list:
-                    output += "<h2>"+restaurant.name+ "<h4><a href='#'> EDIT </a></h4><h4><a href='#'> DELETE </a></h4>"+"</h2>"
+                    id_number=str(restaurant.id)
+                    output += "<h2>"+restaurant.name+\
+                    "<h4><a href='/restaurants/"+id_number+"/edit'> EDIT </a></h4>\
+                    <h4><a href='/restaurants/"+id_number+"/delete'> DELETE </a></h4></h2>"
                     # "<a href=''> EDIT </a>"+ "<a href=''> DELETE </a>"
                 output += "</h1>"
                 # the next 3 lines makes the page blank
@@ -36,9 +39,14 @@ class webServerHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 output = ""
                 output += "<html><body>"
-                output += "<h2>Hola! Create a new restaurant of your favorite kind:</h2>"
                 # TODO: where is the /restaurants/new file?
-                output += '''<form method='POST' enctype='multipart/form-data' action='/restaurants/new'><h2>You would create:</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+                output += '''<form method='POST'
+                enctype='multipart/form-data'
+                action='/restaurants/new'>
+                <h2>New Restaurant:</h2>
+                <input name="newRestaurant" type="text" >
+                <input type="submit" value="Submit">
+                </form>'''
                 output += "</body></html>"
                 self.wfile.write(output)
                 print output
@@ -54,7 +62,7 @@ class webServerHandler(BaseHTTPRequestHandler):
                     self.headers.getheader('content-type'))
                 if ctype == 'multipart/form-data':
                     fields = cgi.parse_multipart(self.rfile, pdict)
-                    messagecontent = fields.get('message')
+                    messagecontent = fields.get('newRestaurant')
 
                 output = ""
                 output += "<html><body>"
