@@ -80,6 +80,31 @@ class webServerHandler(BaseHTTPRequestHandler):
                     logging.info('from /edit', output)
                     return
 
+            if self.path.endswith("/delete"):
+                laPath = self.path.split('/')
+                laPathId = laPath[2]
+                myRestaurant = session.query(Restaurant).filter_by(id=laPathId).one()
+                if myRestaurant != []:
+                    self.send_response(200)
+                    self.send_header('Content-type', 'text/html')
+                    self.end_headers()
+                    output = ""
+                    output += "<html><body>"
+                    output += "<form method='POST'\
+                     enctype='multipart/form-data'\
+                     action='/restaurants/%s/delete'>" % str(laPathId)
+                    output += "<h2>Are you sure you want to delete %s ?</h2>" % myRestaurant.name
+                    # TODO: what if I want to use a radio button yes or no?
+                    output += "<input type='submit' name='verify' value='Delete'>Delete"
+                    output += "</form></body></html>"
+                    self.wfile.write(output)
+
+                    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+                    logging.debug('A debug message!')
+                    logging.info('from /edit', output)
+                    return
+
+
         except IOError:
             self.send_error(404, 'File Not Found: %s' % self.path)
 
@@ -108,7 +133,6 @@ class webServerHandler(BaseHTTPRequestHandler):
                     fields = cgi.parse_multipart(self.rfile, pdict)
                     messagecontent = fields.get('newName')
 
-
                 # UPDATE
                 laPath = self.path.split('/')
                 print laPath  # ['', 'restaurants', '4', 'edit']
@@ -118,6 +142,24 @@ class webServerHandler(BaseHTTPRequestHandler):
                     myRestaurant.name=messagecontent[0]
                     print myRestaurant.name
                     session.add(myRestaurant)
+                    session.commit()
+
+                    self.send_response(301)
+                    self.send_header('Content-type', 'text/html')
+                    self.send_header('Location', '/restaurants')
+                    self.end_headers()
+
+            if self.path.endswith("/delete"):
+                ctype, pdict = cgi.parse_header(
+                    self.headers.getheader('content-type'))
+
+                # UPDATE: regardless of the ctype content, delete
+                laPath = self.path.split('/')
+                print laPath  # ['', 'restaurants', '4', 'edit']
+                laPathId = laPath[2]
+                myRestaurant = session.query(Restaurant).filter_by(id=laPathId).one()
+                if myRestaurant != []:
+                    session.delete(myRestaurant)
                     session.commit()
 
                     self.send_response(301)
