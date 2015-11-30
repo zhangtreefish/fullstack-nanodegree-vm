@@ -13,10 +13,10 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 @app.route('/')
-@app.route('/restaurants/<int:rest_id>/')
-def restaurantMenu(rest_id):
+@app.route('/restaurants/<int:restaurant_id>/')
+def restaurantMenu(restaurant_id):
     # without one(), gets error 'AttributeError: 'Query' object has no attribute 'id''
-    laRestaurant = session.query(Restaurant).filter_by(id=rest_id).one()
+    laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
     myMenus = session.query(MenuItem).filter_by(restaurant_id=laRestaurant.id)
     output = 'Menu of My Restaurant '
     output += string.capwords(laRestaurant.name)
@@ -35,21 +35,24 @@ def restaurantMenu(rest_id):
     return output
 # Task 1: Create route for newMenuItem function here
 
+# @app.route('/')
+@app.route('/restaurants/<int:restaurant_id>/new/')
+def newMenuItem(restaurant_id):
+    return "page to create a new menu item. Task 1 complete!"
 
-# def newMenuItem(restaurant_id):
-#    return "page to create a new menu item. Task 1 complete!"
+# Task 2: Create route for editMenuItem function here TODO
 
-# Task 2: Create route for editMenuItem function here
+# @app.route('/')
+@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/edit/')
+def editMenuItem(restaurant_id, menu_id):
+    return "page to edit a menu item. Task 2 complete!"
 
+# Task 3: Create a route for deleteMenuItem function here TODO
 
-# def editMenuItem(restaurant_id, menu_id):
-#    return "page to edit a menu item. Task 2 complete!"
-
-# Task 3: Create a route for deleteMenuItem function here
-
-
-# def deleteMenuItem(restaurant_id, menu_id):
-#    return "page to delete a menu item. Task 3 complete!"
+# @app.route('/')
+@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete/')
+def deleteMenuItem(restaurant_id, menu_id):
+    return "page to delete a menu item. Task 3 complete!"
 
 if __name__ == '__main__':
     app.debug = True
