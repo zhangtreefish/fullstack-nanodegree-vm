@@ -18,10 +18,18 @@ restaurant_list=session.query(Restaurant).all()
 print session.query(Restaurant).first().name
 
 # will not work if restaurant='myFirstRestaurant'
-myFirstMenu = MenuItem(name='jade', description='daikon steamed to a luscious \
-                     texture', price='$2.50', course='vegetable', \
-                     restaurant=myFirstRestaurant)
+myFirstMenu = MenuItem(name='jade',
+	                   description='daikon steamed to a luscious texture',
+	                   price='$2.50',
+	                   course='vegetable',
+                       restaurant=myFirstRestaurant)
+mySecondMenu = MenuItem(name='FragrantSnow',
+                        description='sweet rice flour balls encasing honey-infused sweet olive blossoms and coconut oil',
+                        price='$4.00',
+                        course='dessert',
+                        restaurant=myFirstRestaurant)
 session.add(myFirstMenu)
+session.add(mySecondMenu)
 session.commit()
 laRes = session.query(MenuItem).first().name
 print session.query(MenuItem).first().name
