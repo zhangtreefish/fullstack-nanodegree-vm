@@ -1,0 +1,11 @@
+<html>
+	<body>
+		<h1> New Menu for {{restaurant.name.capitalize()}} </h1>
+		<!--the first restaurant_id is the variable of method newMenuItem defined in project.py,the second is as in int:restaurant_id of the route; having ','' between action and method will cause failure of redirect -->
+		<form action='{{url_for('newMenuItem', restaurant_id=restaurant_id )}}' method='post'>
+            <input name="newMenu" type="text">
+            <input type="submit" value="Create">
+        </form>
+    </body>
+</html>
+

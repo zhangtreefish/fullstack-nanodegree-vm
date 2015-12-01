@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for, request, redirect
 # import manyRestaurants
 app = Flask(__name__)
 import string
@@ -18,15 +18,21 @@ session = DBSession()
 def restaurantMenu(restaurant_id):
     # without one(), gets error 'AttributeError: 'Query' object has no attribute 'id''
     laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-    myMenus = session.query(MenuItem).filter_by(restaurant_id=laRestaurant.id)
+    myMenus = session.query(MenuItem).filter_by(restaurant_id=restaurant_id)
     return render_template('menu.html', restaurant=laRestaurant, menus=myMenus)
 
-# Task 1: Create route for newMenuItem function here
-
 # @app.route('/')
-@app.route('/restaurants/<int:restaurant_id>/new/')
+@app.route('/restaurants/<int:restaurant_id>/new/', methods=['GET','POST'])
 def newMenuItem(restaurant_id):
-    return "page to create a new menu item. Task 1 complete!"
+    if request.method == 'POST':
+        myNewMenu = MenuItem(name=request.form['newMenu'],restaurant_id=restaurant_id)
+        # print ('aha',request.form['newMenu'])
+        session.add(myNewMenu)
+        session.commit()
+        return redirect(url_for('restaurantMenu',restaurant_id=restaurant_id))
+    else:
+        laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+        return render_template('newMenuItem.html',restaurant_id=restaurant_id, restaurant=laRestaurant)
 
 # Task 2: Create route for editMenuItem function here TODO
 
