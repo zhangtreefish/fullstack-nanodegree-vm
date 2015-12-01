@@ -3,20 +3,21 @@
 		<h1> Menus of Restaurant {{restaurant.name.capitalize()}} </h1>
 	   	<a href={{url_for('newMenuItem', restaurant_id=restaurant.id)}}> Create a New Menu</a>
 	   	<p>
-			{%for i in menus %}
-		    {{i.name}}
-		    <br>
-		    {{i.course}}
-		    <br>
-		    {{i.price}}
-		    <br>
-		    {{i.description}}
-		    <br>
+			{% for i in menus %}
+			    <p>
+				    {{i.name}}
+				    <br>
+				    {{i.course}}
+				    <br>
+				    {{i.price}}
+				    <br>
+				    {{i.description}}
+				</p>
 		    <!--OK,too: <a href={{url_for('editMenuItem', restaurant_id=i.restaurant_id, menu_id=i.id)}}> EDIT</a> -->
 			<a href={{url_for('editMenuItem', restaurant_id=restaurant.id, menu_id=i.id)}}> EDIT</a>
 			<a href={{url_for('deleteMenuItem', restaurant_id=i.restaurant_id, menu_id=i.id)}}> DELETE</a>
-	    </p>
-	   	{% endfor %}
+	   		{% endfor %}
+	   	</p>
     </body>
 </html>
 
