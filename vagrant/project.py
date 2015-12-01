@@ -55,9 +55,15 @@ def editMenuItem(restaurant_id, menu_id):
 # Task 3: Create a route for deleteMenuItem function here TODO
 
 # @app.route('/')
-@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete/')
+@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete/', methods=['GET','POST'])
 def deleteMenuItem(restaurant_id, menu_id):
-    return "page to delete a menu item. Task 3 complete!"
+    laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
+    if request.method == 'POST':
+    	session.delete(laMenu)
+    	session.commit()
+    	return redirect(url_for('restaurantMenu',restaurant_id=restaurant_id))
+    else:
+    	return render_template('deleteMenuItem.html', restaurant_id=restaurant_id, menu_id=menu_id, menu=laMenu)
 
 if __name__ == '__main__':
     # If you enable debug support the server will reload itself on code changes
