@@ -12,6 +12,7 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+# route() decorator to tell Flask what URL should trigger method
 @app.route('/')
 @app.route('/restaurants/<int:restaurant_id>/')
 def restaurantMenu(restaurant_id):
@@ -42,5 +43,6 @@ def deleteMenuItem(restaurant_id, menu_id):
     return "page to delete a menu item. Task 3 complete!"
 
 if __name__ == '__main__':
+    # If you enable debug support the server will reload itself on code changes
     app.debug = True
     app.run(host='0.0.0.0', port=5000)
