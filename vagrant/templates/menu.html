@@ -1,0 +1,19 @@
+<html>
+	<body>
+		<h1> Menus of Restaurant {{restaurant.name.capitalize()}} </h1>
+
+		{%for i in menus %}
+	    {{i.name}}
+	    </br>
+	    {{i.course}}
+	    </br>
+	    {{i.price}}
+	    </br>
+	    {{i.description}}
+	    </br>
+	    {{i.price}}
+	    </br>
+	   	{% endfor %}
+    </body>
+</html>
+

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 # import manyRestaurants
 app = Flask(__name__)
 import string
@@ -18,21 +18,8 @@ def restaurantMenu(restaurant_id):
     # without one(), gets error 'AttributeError: 'Query' object has no attribute 'id''
     laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
     myMenus = session.query(MenuItem).filter_by(restaurant_id=laRestaurant.id)
-    output = 'Menu of My Restaurant '
-    output += string.capwords(laRestaurant.name)
-    output += '</br>'
-    for menu in myMenus:
-        output += menu.course
-        output += '</br>'
-        output += menu.name
-        output += '</br>'
-        output += menu.description
-        output += '</br>'
-        output += menu.price
-        output += '</br>'
-        output += '</br>'
+    return render_template('menu.html', restaurant=laRestaurant, menus=myMenus)
 
-    return output
 # Task 1: Create route for newMenuItem function here
 
 # @app.route('/')
