@@ -1,13 +1,38 @@
-<html>
+<!DOCTYPE html>
+<!--This is my play ground -->
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<!--TODO: activating the next two links breaks the create menu function:
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+		<link href="static/style.css" rel="stylesheet">-->
+		<script src='http://ajax.googleapis.com/ajax/optionbs/jquery/1.9.1/jquery.min.js'></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+		<title> New Menu </title>
+	</head>
 	<body>
 		<h1> New Menu for {{restaurant.name.capitalize()}} </h1>
 		<!--the first restaurant_id is the variable of method newMenuItem defined in project.py,the second is as in int:restaurant_id of the route; having ','' between action and method will cause failure of redirect -->
-		<form action='{{url_for('newMenuItem', restaurant_id=restaurant_id )}}' method='post'>
-            <input name="newName" type="text" placeholder='menu.name'>
-            <input name="newCourse" type="text" placeholder='menu.course'>
-            <input name="newPrice" type="text" placeholder='menu.price'>
-            <input name="newDescription" type="text" placeholder='menu.description'>
-            <input type="submit" value="Create">
+		<form action='{{url_for('newMenuItem', restaurant_id=restaurant_id )}}' method='post' class='btn-group'>
+            <div class='input-group'>
+	            <div class='input-group-btn'>
+		            <button type='button' class='btn btn-lg btn-primary dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+		            	Course<span class='caret'></span>
+		            </button>
+	            	<select name='newCourse' class='dropdown-menu'>
+	            		<option> Fruit </option>
+	            		<option> Vegetable </option>
+	            		<option> Grain </option>
+	            		<option> Beans and Legumes </option>
+	            		<option> Meats </option>
+	            		<option> Seafood </option>
+	            	</select>
+	            </div>
+	        </div>
+            <button type='button' class='btn btn-primary'><input name="newName" type="text" placeholder='menu.name'></button>
+            <button type='button' class='btn btn-primary'><input name="newPrice" type="text" placeholder='menu.price'></button>
+            <button type='button' class='btn btn-primary'><input name="newDescription" type="text" placeholder='menu.description'></button>
+            <button type='button' class='btn btn-success'><input type="submit" value="Create"></button>
         </form>
     </body>
 </html>
