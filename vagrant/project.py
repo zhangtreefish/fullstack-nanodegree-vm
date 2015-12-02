@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, redirect
+from flask import Flask, render_template, url_for, request, redirect, flash
 # import manyRestaurants
 app = Flask(__name__)
 import string
@@ -28,11 +28,12 @@ def newMenuItem(restaurant_id):
         myNewMenu = MenuItem(name=request.form['newName'],
                              course=request.form['newCourse'],
                              description=request.form['newDescription'],
-                             price=request.form['price'],
+                             price=request.form['newPrice'],
                              restaurant_id=restaurant_id)
         # print ('aha',request.form['newMenu'])
         session.add(myNewMenu)
         session.commit()
+        flash('New menu ' + myNewMenu.name+' has been created!')
         return redirect(url_for('restaurantMenu',restaurant_id=restaurant_id))
     else:
         laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -51,6 +52,7 @@ def editMenuItem(restaurant_id, menu_id):
     	laMenu.price = request.form['newPrice']
     	session.add(laMenu)
         session.commit()
+        flash('The menu '+laMenu.name + ' has been edited!')
         return redirect(url_for('restaurantMenu',restaurant_id=restaurant_id))
     else:
     	laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -63,13 +65,16 @@ def editMenuItem(restaurant_id, menu_id):
 def deleteMenuItem(restaurant_id, menu_id):
     laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
+    	name =  laMenu.name
     	session.delete(laMenu)
     	session.commit()
+    	flash('the menu '+name+' has been deleted!')
     	return redirect(url_for('restaurantMenu',restaurant_id=restaurant_id))
     else:
     	return render_template('deleteMenuItem.html', restaurant_id=restaurant_id, menu_id=menu_id, menu=laMenu)
 
 if __name__ == '__main__':
     # If you enable debug support the server will reload itself on code changes
+    app.secret_key='super_secret_key'
     app.debug = True
     app.run(host='0.0.0.0', port=5000)
