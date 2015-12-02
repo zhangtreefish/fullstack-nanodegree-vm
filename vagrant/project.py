@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, redirect, flash
+from flask import Flask, render_template, url_for, request, redirect, flash, jsonify
 # import manyRestaurants
 app = Flask(__name__)
 import string
@@ -11,6 +11,22 @@ engine = create_engine('sqlite:///restaurantmenu.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
+@app.route('/restaurants/JSON/')
+def restaurantsJSON():
+    restaurants = session.query(Restaurant).all()
+    return jsonify(restaurant=[i.serialize for i in restaurants])
+
+@app.route('/restaurants/<int:restaurant_id>/menu/JSON/')
+def restaurantMenuJSON(restaurant_id):
+    menus = session.query(MenuItem).filter_by(restaurant_id=restaurant_id)
+    return jsonify(menuItem=[i.serialize for i in menus])
+
+@app.route('/restaurants/<int:restaurant_id>/menu/<int:menu_id>/JSON/')
+def menuJSON(restaurant_id, menu_id):
+    menu = session.query(MenuItem).filter_by(id=menu_id).one()
+    return jsonify(menuItem=menu.serialize)
+
 
 # route() decorator to tell Flask what URL should trigger method
 @app.route('/')
