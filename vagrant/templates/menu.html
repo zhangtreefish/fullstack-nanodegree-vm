@@ -19,7 +19,7 @@
 	</head>
 	<body>
 		<h1> Menus of Restaurant {{restaurant.name.capitalize()}} </h1>
-	   	<button type='button' class='btn btn-success'><a href={{url_for('newMenuItem', restaurant_id=restaurant.id)}}> Create a New Menu</a></button>
+	   	<button type='button' class='btn btn-success'><a href={{url_for('newMenu', restaurant_id=restaurant.id)}}> Create a New Menu</a></button>
 	   	<section>
 	   		{% with messages=get_flashed_messages() %}
 		   		{% if messages %}
@@ -41,10 +41,10 @@
 				    <br>
 				    {{i.description}}
 				</p>
-		    <!--OK,too: <a href={{url_for('editMenuItem', restaurant_id=i.restaurant_id, menu_id=i.id)}}> EDIT</a> -->
+		    <!--OK,too: <a href={{url_for('editMenu', restaurant_id=i.restaurant_id, menu_id=i.id)}}> EDIT</a> -->
 			<div class='btn-group' role='group'>
-				<button type='button' class='btn btn-default'><a href={{url_for('editMenuItem', restaurant_id=restaurant.id, menu_id=i.id)}}> EDIT</a></button>
-				<button type='button' class='btn btn-warning'><a href={{url_for('deleteMenuItem', restaurant_id=i.restaurant_id, menu_id=i.id)}}> DELETE</a></button>
+				<button type='button' class='btn btn-default'><a href={{url_for('editMenu', restaurant_id=restaurant.id, menu_id=i.id)}}> EDIT</a></button>
+				<button type='button' class='btn btn-warning'><a href={{url_for('deleteMenu', restaurant_id=i.restaurant_id, menu_id=i.id)}}> DELETE</a></button>
 			</div>
 	   		{% endfor %}
 	   	</section>

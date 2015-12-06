@@ -1,0 +1,17 @@
+<html>
+	<body>
+		<section class='panel panel-default'>
+            <div class='panel-heading'>
+                <h1> Edit Restauraunt {{restaurant.name.capitalize()}} </h1>
+                <p>{{restaurant.name}}</p>
+            </div>
+            <div class='panel-body'>
+		        <form action='{{url_for('restaurantEdit', restaurant_id=restaurant.id)}}' method='post'>
+                    <input name="newName" type="text" placeholder='{{restaurant.name}}'>
+                    <input type="submit" value="EDIT">
+                </form>
+            </div>
+        </section>
+    </body>
+</html>
+
