@@ -39,7 +39,7 @@ def restaurantMenu(restaurant_id):
 
 # @app.route('/')
 @app.route('/restaurants/<int:restaurant_id>/new/', methods=['GET','POST'])
-def newMenuItem(restaurant_id):
+def newMenu(restaurant_id):
     if request.method == 'POST':
         myNewMenu = MenuItem(name=request.form['newName'],
                              course=request.form['newCourse'],
@@ -59,7 +59,7 @@ def newMenuItem(restaurant_id):
 
 # @app.route('/')
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/edit/', methods=['GET','POST'])
-def editMenuItem(restaurant_id, menu_id):
+def editMenu(restaurant_id, menu_id):
     laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
     	laMenu.name = request.form['newName']
@@ -78,7 +78,7 @@ def editMenuItem(restaurant_id, menu_id):
 
 # @app.route('/')
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete/', methods=['GET','POST'])
-def deleteMenuItem(restaurant_id, menu_id):
+def deleteMenu(restaurant_id, menu_id):
     laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
     	name =  laMenu.name
