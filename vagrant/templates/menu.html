@@ -18,7 +18,7 @@
 		</style>
 	</head>
 	<body>
-		<h1> Menus of Restaurant {{restaurant.name.capitalize()}} </h1>
+		<h1> Menus of Restaurant {{restaurant.name.title()}} </h1>
 	   	<button type='button' class='btn btn-success'><a href={{url_for('newMenu', restaurant_id=restaurant.id)}}> Create a New Menu</a></button>
 	   	<section>
 	   		{% with messages=get_flashed_messages() %}

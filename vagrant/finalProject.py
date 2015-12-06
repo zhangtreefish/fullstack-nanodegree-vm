@@ -46,7 +46,7 @@ def restaurantEdit(restaurant_id):
         laRestaurant.name = request.form['newName']
         session.add(laRestaurant)
         session.commit()
-        flash('The restaurant'+ laRestaurant.name+ 'has been edited!')
+        flash('The restaurant '+ laRestaurant.name+ ' has been edited!')
         return redirect(url_for('showRestaurants'))
     else:
         laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -55,7 +55,7 @@ def restaurantEdit(restaurant_id):
 @app.route('/restaurants/<int:restaurant_id>/delete/')
 def restaurantDelete(restaurant_id):
 	laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-	return "This page will delete restaurant %s" % laRestaurant.name
+	return render_template('deleteRestaurant.html', restaurant_id=restaurant_id, restaurant=laRestaurant)
 
 @app.route('/restaurants/<int:restaurant_id>/menu/JSON/')
 def restaurantMenuJSON(restaurant_id):

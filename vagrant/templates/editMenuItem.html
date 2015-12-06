@@ -1,14 +1,58 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"> TODO:this messes up dropdown-->
+        <link href="static/style.css" rel="stylesheet">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+        <title> My Restaurants </title>
+        <style>
+            body {
+                font-size:1.5em;
+                width: 500px;
+                max-width: 500px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        </style>
+    </head>
 	<body>
-		<h1> Edit Menu {{menu.name.capitalize()}} at Restaurant {{restaurant.name.capitalize()}} </h1>
-		<!--the first restaurant_id is the variable of method newMenuItem defined in project.py,the second is as in int:restaurant_id of the route; having ','' between action and method will cause failure of redirect -->
-		<form action='{{url_for('editMenu', restaurant_id=restaurant_id, menu_id=menu_id )}}' method='post'>
-            <input name="newName" type="text" placeholder='{{menu.name}}'>
-            <input name="newCourse" type="text" placeholder='{{menu.course}}'>
-            <input name="newPrice" type="text" placeholder='{{menu.price}}'>
-            <input name="newDescription" type="text" placeholder='{{menu.description}}'>
-            <input type="submit" value="EDIT">
-        </form>
+        <section class='panel panel-default'>
+            <div class='panel-heading'>
+		        <h1> Edit Menu {{menu.name.capitalize()}} at Restaurant {{restaurant.name.title()}} </h1>
+            </div>
+            <div class='panel-body'>
+		        <form action='{{url_for('editMenu', restaurant_id=restaurant_id, menu_id=menu_id )}}' method='post'>
+                    <div class='input-group'>
+                        <div class='input-group-btn'>
+                            <button type='button' class='btn dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+                                Course<span class='caret'></span>
+                            </button>
+                            <select name='newCourse' class='dropdown-menu'>
+                                <option> Fruit </option>
+                                <option> Vegetable </option>
+                                <option> Grain </option>
+                                <option> Beans and Legumes </option>
+                                <option> Meats </option>
+                                <option> Seafood </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <input name="newName" type="text" placeholder='{{menu.name}}'>name
+                    <br>
+                    <input name="newPrice" type="text" placeholder='{{menu.price}}'>price
+                    <br>
+                    <input name="newDescription" type="text" placeholder='{{menu.description}}'>description
+                    <br>
+                    <input type="submit" value="EDIT">
+                    <br>
+                    <button class='btn btn-success' name="cancel">
+                        <a href={{url_for('showMenus', restaurant_id=restaurant_id)}}>CANCEL</a>
+                    </button>
+                </form>
+            </div>
+        </section>
     </body>
 </html>
 
