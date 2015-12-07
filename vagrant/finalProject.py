@@ -52,10 +52,19 @@ def restaurantEdit(restaurant_id):
         laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
         return render_template('editRestaurant.html', restaurant_id=restaurant_id,restaurant=laRestaurant)
 
-@app.route('/restaurants/<int:restaurant_id>/delete/')
+@app.route('/restaurants/<int:restaurant_id>/delete/',methods=['POST','GET'])
 def restaurantDelete(restaurant_id):
-	laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-	return render_template('deleteRestaurant.html', restaurant_id=restaurant_id, restaurant=laRestaurant)
+    laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+    if request.method == 'POST':
+        if(laRestaurant):
+            session.delete(laRestaurant)
+            session.commit()
+            flash('Restaurant '+laRestaurant.name+' has been sadly deleted...')
+            return redirect(url_for('showRestaurants'))
+        else:
+            return "no such restaurant found"  # TODO: send error message when no such restaurant
+    else:
+        return render_template('deleteRestaurant.html', restaurant_id=restaurant_id, restaurant=laRestaurant)
 
 @app.route('/restaurants/<int:restaurant_id>/menu/JSON/')
 def restaurantMenuJSON(restaurant_id):
