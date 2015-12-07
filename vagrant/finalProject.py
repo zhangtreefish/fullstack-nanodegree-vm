@@ -23,7 +23,7 @@ def showRestaurants():
 		restaurants = session.query(Restaurant).all()
 		return render_template('restaurants.html', restaurants=restaurants)
 	except IOError as err:
-		print("No restaurant, error:"+str(err))
+		return "No restaurant, error:"
 	finally:
 		flash("This page will show all my restaurants")
 
@@ -31,7 +31,6 @@ def showRestaurants():
 def restaurantNew():
     if request.method == 'POST':
         myNewRestaurant = Restaurant(name=request.form['newName'])
-        # print ('aha',request.form['newMenu'])
         session.add(myNewRestaurant)
         session.commit()
         flash('New restaurant ' + myNewRestaurant.name+' has been created!')
@@ -97,7 +96,6 @@ def newMenu(restaurant_id):
                              description=request.form['newDescription'],
                              price=request.form['newPrice'],
                              restaurant_id=restaurant_id)
-        # print ('aha',request.form['newMenu'])
         session.add(myNewMenu)
         session.commit()
         flash('New menu ' + myNewMenu.name+' has been created!')
