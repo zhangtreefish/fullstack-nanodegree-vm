@@ -5,12 +5,26 @@ import string
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Restaurant, MenuItem, Base
+
+# New imports for state token
+from flask import session as login_session
+import random
+import string
+
 # if just do 'from manyRestaurants import Restaurant, session' and without the next 4 lines,get error
 # 'SQLite objects created in a thread can only be used in that same thread'
 engine = create_engine('sqlite:///restaurantmenu.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
+# Create anti-forgery state token
+@app.route('/login/')
+def showLogin():
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in xrange(32))
+    login_session['state'] = state
+    return "The current session state is %s" % login_session['state']
 
 @app.route('/restaurants/JSON/')
 def restaurantsJSON():
