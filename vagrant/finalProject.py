@@ -11,12 +11,25 @@ from flask import session as login_session
 import random
 import string
 
+# IMPORTS FOR gconnect
+from oauth2client.client import flow_from_clientsecrets  # creates a Flow object from a client_secrets.json file
+from oauth2client.client import FlowExchangeError
+import httplib2
+import json
+from flask import make_response
+import requests # Requests is an Apache2 Licensed HTTP library, written in Python, for human beings.
+
 # if just do 'from manyRestaurants import Restaurant, session' and without the next 4 lines,get error
 # 'SQLite objects created in a thread can only be used in that same thread'
 engine = create_engine('sqlite:///restaurantmenu.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
+CLIENT_ID = json.loads(
+    open('client_secret.json', 'r').read())['web']['client_id']
+APPLICATION_NAME = "Therapeutic Foods Restaurants"
+
 
 # Create anti-forgery state token
 @app.route('/login/')
