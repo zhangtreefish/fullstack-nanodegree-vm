@@ -1,12 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta name="viewport" content="width=device-width,initial-scale=1">
-		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
-		<link href="{{ url_for('static', filename='style.css')}}" rel="stylesheet">
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-		<title> My Restaurants </title>
-	</head>
+{% extends "base.html" %}
+{% block title %} My Restaurants {% endblock %}
+{% block head %}
+	{{super()}}
+{% endblock %}
+{% block content %}
 	<body class="container">
 		<div class='row panel panel-default'>
 		  	<button type='button' class='btn btn-success'><a href={{url_for('newMenu', restaurant_id=restaurant.id)}}> Suggest a New Menu</a></button>
@@ -39,5 +36,5 @@
 			{% endfor %}
 		</div>
     </body>
-</html>
+{% endblock %}
 
