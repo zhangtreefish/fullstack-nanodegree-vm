@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<meta name="google-signin-client_id" content="65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com">
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+		<link href="static/style.css" rel="stylesheet">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+		<!--Use the onload callback to execute widget code after all dependencies have loaded.-->
+		<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+		<title> My Restaurants </title>
+		<style>
+			body {
+				font-size:1.5em;
+				width: 300px;
+				max-width: 500px;
+				margin-left: auto;
+				margin-right: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class='row panel panel-default'>
+			  	<div id="singinButton">
+			  		<span class="g-signin" data-scope="openid email" data-clientid="65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com"
+			  		data-redirecturi="postmessage"
+			  		data-accesstype="offline"
+			  		data-cookiepolicy="single_host_origin"
+			  		data-callback="singInCallback"
+			  		data-approvalprompt="force">
+			  		</span>
+			  	</div>
+			  	<div id="result">
+			  	</div>
+			</div>
+		</div>
+		<button class="btn btn=info" type="submit" value="Sign Out"><a href="#" onclick="signOut();">Sign Out the App</a>
+		<script>
+		function signOut() {
+		    var auth2 = gapi.auth2.getAuthInstance();
+		    auth2.signOut().then(function () {
+		        console.log('User signed out.');
+		    });
+		}
+		function signInCallback(authResult) {
+		  	if (authResult['code']) {
+		    	// Hide the sign-in button now that the user is authorized
+		    	$('#signinButton').attr('style', 'display: none');
+		    	// Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
+		    	//.ajax handles the response from google to the client:one-time code to authorize the server and access token for client to access server from browser, and pass onto the server
+		    	$.ajax({
+			      type: 'POST',
+			      url: '/gconnect?state={{STATE}}',//server taking the one-time code from client
+			      processData: false,//not to process into string
+			      data: authResult['code'],//:what is sent to the server is the one-time use code
+			      contentType: 'application/octet-stream; charset=utf-8',
+			      success: function(result) { //if 200 from server...
+			        // Handle or verify the server response if necessary, pass to the client
+			        	if (result) { //result: additional info from server
+				          	$('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+				         	setTimeout(function() {
+				          		window.location.href = "/restaurants/";
+				         	}, 4000);
+				      	} else if (authResult['error']) {
+				    		console.log('There was an error: ' + authResult['error']);//report the error from google
+				  		} else {
+				        	$('#result').html('Failed to make a server-side call. Check your configuration and console.');// if no response from server to the callback
+				        }
+			    	}//success
+			  	});//ajax
+			}//if
+		}
+		</script>
+    </body>
+</html>
+
