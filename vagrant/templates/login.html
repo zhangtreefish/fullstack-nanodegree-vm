@@ -1,29 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta name="viewport" content="width=device-width,initial-scale=1">
-		<meta name="google-signin-client_id" content="65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com">
-		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
-		<link href="static/style.css" rel="stylesheet">
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-		<!--Use the onload callback to execute widget code after all dependencies have loaded.-->
-		<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
-		<title> My Restaurants </title>
-		<style>
-			body {
-				font-size:1.5em;
-				width: 300px;
-				max-width: 500px;
-				margin-left: auto;
-				margin-right: auto;
-			}
-		</style>
-	</head>
+{% extends "base.html" %}
+{% block title %} My Restaurants {% endblock %}
+{% block head %}
+	{{super()}}
+	<meta name="google-signin-client_id" content="65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com">
+	<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+{% endblock %}
+{% block content %}
+
 	<body>
-		<div class="container">
-			<div class='row panel panel-default'>
-			  	<div id="singinButton">
-			  		<span class="g-signin" data-scope="openid email" data-clientid="65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com"
+		<div class='container'>
+			<div class='row'>
+			  	<div id='singinButton' class='col-xs-5'>
+			  		<span class="g-signin" data-scope="openid email"
+			  		data-clientid="65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com"
 			  		data-redirecturi="postmessage"
 			  		data-accesstype="offline"
 			  		data-cookiepolicy="single_host_origin"
@@ -31,9 +20,7 @@
 			  		data-approvalprompt="force">
 			  		</span>
 			  	</div>
-			  	<div id="result">
-			  	</div>
-			</div>
+		  	<div id='result' class='row'></div>
 		</div>
 		<button class="btn btn=info" type="submit" value="Sign Out"><a href="#" onclick="signOut();">Sign Out the App</a>
 		<script>
@@ -73,5 +60,5 @@
 		}
 		</script>
     </body>
-</html>
+{% endblock %}
 

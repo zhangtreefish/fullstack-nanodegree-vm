@@ -5,12 +5,6 @@
 {% endblock %}
 {% block content %}
 	<body>
-        <nav>
-            <ul>
-                <li>All restaurants</li>
-                <li>All Menus</li>
-            </ul>
-        </nav>
         <section class='panel panel-default'>
             <div class='panel-body'>
 		        <form action='{{url_for('editMenu', restaurant_id=restaurant_id, menu_id=menu_id )}}' method='post' id='course' autocomplete='on'>
