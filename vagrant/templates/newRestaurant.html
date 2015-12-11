@@ -1,22 +1,9 @@
-<!DOCTYPE html>
-<!--This is my play ground -->
-<html lang="en">
-	<head>
-		<meta name="viewport" content="width=device-width,initial-scale=1">
-		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
-		<link href="static/style.css" rel="stylesheet">
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-		<title> Create New Restaurant </title>
-		<style>
-			body {
-				font-size:1.5em;
-				width: 300px;
-				max-width: 500px;
-				margin-left: auto;
-				margin-right: auto;
-			}
-		</style>
-	</head>
+{% extends "base.html" %}
+{% block title %} Create New Restaurant {% endblock %}
+{% block head %}
+	{{super()}}
+{% endblock %}
+{% block content %}
 	<body>
 		<h1> Create New Restaurant </h1>
 	   	<section class='panel panel-default'>
@@ -40,5 +27,5 @@
 			</div>
 	   	</section>
     </body>
-</html>
+{% endblock %}
 

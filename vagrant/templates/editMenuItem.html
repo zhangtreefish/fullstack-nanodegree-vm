@@ -1,21 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"> TODO:this messes up dropdown-->
-        <link href="static/style.css" rel="stylesheet">
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-        <title> My Restaurants </title>
-        <style>
-            body {
-                font-size:1.5em;
-                width: 500px;
-                max-width: 500px;
-                margin-left: auto;
-                margin-right: auto;
-            }
-        </style>
-    </head>
+{% extends "base.html" %}
+{% block title %} New Menu {% endblock %}
+{% block head %}
+    {{super()}}
+{% endblock %}
+{% block content %}
 	<body>
         <section class='panel panel-default'>
             <div class='panel-heading'>
@@ -23,20 +11,16 @@
             </div>
             <div class='panel-body'>
 		        <form action='{{url_for('editMenu', restaurant_id=restaurant_id, menu_id=menu_id )}}' method='post'>
-                    <div class='input-group'>
-                        <div class='input-group-btn'>
-                            <button type='button' class='btn dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
-                                Course<span class='caret'></span>
-                            </button>
-                            <select name='newCourse' class='dropdown-menu'>
+                    <div class='form-group'>
+                        <label for = "newCourse">Select Course</label>
+                        <select name='newCourse' class='form-control'>
                                 <option> Fruit </option>
                                 <option> Vegetable </option>
                                 <option> Grain </option>
                                 <option> Beans and Legumes </option>
                                 <option> Meats </option>
                                 <option> Seafood </option>
-                            </select>
-                        </div>
+                        </select>
                     </div>
 
                     <input name="newName" type="text" placeholder='{{menu.name}}'>name
@@ -54,5 +38,4 @@
             </div>
         </section>
     </body>
-</html>
-
+{% endblock %}
