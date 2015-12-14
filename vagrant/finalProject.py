@@ -39,6 +39,20 @@ def showLogin():
     login_session['state'] = state
     return render_template("login.html")
 
+@app.route('/login2/')
+def showLoginTwo():
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in xrange(32))
+    login_session['state'] = state
+    return render_template("login2.html")
+
+@app.route('/login3/')
+def showLogin3():
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in xrange(32))
+    login_session['state'] = state
+    return render_template("login3.html")
+
 @app.route('/restaurants/JSON/')
 def restaurantsJSON():
     restaurants = session.query(Restaurant).all()
