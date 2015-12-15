@@ -51,6 +51,7 @@ class MenuItem(Base):
                 'price':self.price,
                 'id':self.id,
                 'restaurant_id':self.restaurant_id,
+                'condition_id':self.condition_id
              #   'restaurant':self.restaurant  # 'restaurant is not serializable'
                 }
 
