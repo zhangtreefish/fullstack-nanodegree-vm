@@ -4,7 +4,7 @@ app = Flask(__name__)
 import string
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Restaurant, MenuItem, Base
+from database_setup import Restaurant, MenuItem, Condition, Base
 
 # New imports for state token
 from flask import session as login_session
@@ -28,10 +28,11 @@ session = DBSession()
 
 CLIENT_ID = json.loads(
     open('client_secret.json', 'r').read())['web']['client_id']
+
 APPLICATION_NAME = "Therapeutic Foods Restaurants"
 
 
-# Create anti-forgery state token
+# The server creates anti-forgery state token and sends to the client
 @app.route('/login/')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
@@ -52,6 +53,20 @@ def showLogin3():
                     for x in xrange(32))
     login_session['state'] = state
     return render_template("login3.html")
+
+@app.route('/login4/')
+def showLoginFour():
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in xrange(32))
+    login_session['state'] = state
+    return render_template("login4.html")
+
+@app.route('/login5/')
+def showLoginFive():
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in xrange(32))
+    login_session['state'] = state
+    return render_template("login5.html")
 
 @app.route('/restaurants/JSON/')
 def restaurantsJSON():
@@ -176,6 +191,30 @@ def deleteMenu(restaurant_id, menu_id):
     	return redirect(url_for('showMenus',restaurant_id=restaurant_id))
     else:
     	return render_template('deleteMenuItem.html', restaurant_id=restaurant_id, menu_id=menu_id, menu=laMenu)
+
+@app.route('/conditions/')
+def showConditions():
+    conditions = session.query(Condition).all()
+    return render_template('conditions.html', conditions=conditions)
+
+@app.route('/conditions/new/', methods=['POST','GET'])
+def newCondition():
+    if request.method == 'POST':
+        condition = Condition(name=request.form['name'],
+                              signs_and_symptoms=request.form['signs_and_symptoms']
+                              )
+        session.add(condition)
+        session.commit()
+        flash('the condition '+condition.name+' has been listed!')
+        return redirect(url_for('showConditions'))
+    else:
+        return render_template('newCondition.html')
+
+@app.route('/conditions/<int:condition_id>/menu/', methods=['POST','GET'])
+def conditionMenus(condition_id):
+    laCondition = session.query(Condition).filter_by(id=condition_id).one()
+    myMenus = session.query(MenuItem).filter_by(condition_id=condition_id)
+    return render_template('conditionMenus.html', condition=laCondition, menus=myMenus)
 
 if __name__ == '__main__':
     # If you enable debug support the server will reload itself on code changes

@@ -21,6 +21,14 @@ class Restaurant(Base):
                 }
 
 
+class Condition(Base):
+    __tablename__ = 'condition'
+
+    name = Column(String(80), nullable=False)
+    id = Column(Integer, primary_key=True)
+    signs_and_symptoms = Column(String(250))
+
+
 class MenuItem(Base):
     __tablename__ = 'menu_item'
 
@@ -31,6 +39,9 @@ class MenuItem(Base):
     course = Column(String(250))
     restaurant_id = Column(Integer, ForeignKey('restaurant.id'))
     restaurant = relationship(Restaurant)
+    condition_id = Column(Integer, ForeignKey('condition.id'))
+    condition = relationship(Condition)
+
 
     @property
     def serialize(self):
