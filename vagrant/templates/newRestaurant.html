@@ -5,24 +5,23 @@
 {% endblock %}
 {% block content %}
 	<body>
-		<h1> Create New Restaurant </h1>
 	   	<section class='panel panel-default'>
-	   		<div class='panel-heading'>
-		   		{% with messages=get_flashed_messages() %}
-			   		{% if messages %}
-			   			<ul>
-			   			{% for message in messages %}
-			   				<li> <strong> {{message}} </strong></li>
-			   			{% endfor %}
-			   			</ul>
-			   		{% endif %}
-			   	{% endwith %}
+	   		<h1> Create New Restaurant </h1>
+	   		{% with messages=get_flashed_messages() %}
+		   		{% if messages %}
+		   			<ul>
+		   			{% for message in messages %}
+		   				<li> <strong> {{message}} </strong></li>
+		   			{% endfor %}
+		   			</ul>
+		   		{% endif %}
+		   	{% endwith %}
 			</div>
 
 		   	<div class='panel-body'>
 			    <form action='{{url_for('restaurantNew')}}' method='post' class='btn-group'>
-					<button type='button' class='btn btn-default'><input name="newName" type="text" placeholder='restaurant.name'></button>
-					<button type='button' class='btn btn-success'><input type="submit" value="Create"></button>
+					<input class='btn btn-default' name="newName" type="text" placeholder='restaurant.name'>
+					<input class='btn btn-success' type="submit" value="Create">
 				</form>
 			</div>
 	   	</section>
