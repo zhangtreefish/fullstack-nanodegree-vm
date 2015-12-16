@@ -38,35 +38,125 @@ def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
-    return render_template("login.html")
+    return render_template("login.html", STATE=state)
+
 
 @app.route('/login2/')
 def showLoginTwo():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
-    return render_template("login2.html")
+    return render_template("login2.html", STATE=state)
 
 @app.route('/login3/')
 def showLogin3():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
-    return render_template("login3.html")
+    return render_template("login3.html", STATE=state)
 
 @app.route('/login4/')
 def showLoginFour():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
-    return render_template("login4.html")
+    return render_template("login4.html", STATE=state)
 
 @app.route('/login5/')
 def showLoginFive():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
-    return render_template("login5.html")
+    return render_template("login5.html", STATE=state)
+
+@app.route('/gconnect/', methods=['POST'])
+def gconnect():
+    # Validate state token
+    if request.args.get('state') != login_session['state']: # check what client sent is what server sent
+        response = make_response(json.dumps('Invalid state parameter.'), 401)  #dumps:Serialize obj to a JSON formatted str
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    # Obtain the one-time authorization code
+    code = request.data
+
+    try:
+        # Upgrade the authorization code into a credentials object
+        oauth_flow = flow_from_clientsecrets('client_secret.json', scope='', # creates a Flow object from a client_secrets.json file
+                                             redirect_uri = 'postmessage')
+        credentials = oauth_flow.step2_exchange(code)  # exchanges an authorization code for a Credentials object
+    except FlowExchangeError:
+        response = make_response(
+            json.dumps('Failed to upgrade the authorization code.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Check that the access token is valid.
+    # A Credentials object holds refresh and access tokens that authorize access
+    # to a single user's data. These objects are applied to httplib2.Http objects to
+    # authorize access.
+    access_token = credentials.access_token
+    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
+           % access_token)
+    h = httplib2.Http()
+    result = json.loads(h.request(url, 'GET')[1]) # loads:Deserialize to a Python object
+    # If there was an error in the access token info, abort.
+    if result.get('error') is not None:
+        response = make_response(json.dumps(result.get('error')), 500)
+        response.headers['Content-Type'] = 'application/json'
+
+    # Verify that the access token is used for the intended user.
+    # id_token: object, The identity of the resource owner.
+    # 'Google ID Token's field (or claim) 'sub' is unique-identifier key for the user.
+    gplus_id = credentials.id_token['sub']
+    if result['user_id'] != gplus_id:
+        response = make_response(
+            json.dumps("Token's user ID doesn't match given user ID."), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Verify that the access token is valid for this app.
+    if result['issued_to'] != CLIENT_ID:
+        response = make_response(
+            json.dumps("Token's client ID does not match app's."), 401)
+        print "Token's client ID does not match app's."
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    stored_credentials = login_session.get('credentials')
+    stored_gplus_id = login_session.get('gplus_id')
+    if stored_credentials is not None and gplus_id == stored_gplus_id:
+        response = make_response(json.dumps('Current user is already connected.'),
+                                 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Store the access token in the session for later use.
+    login_session['credentials'] = credentials
+    login_session['gplus_id'] = gplus_id
+
+    # Get user info
+    userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
+    params = {'access_token': credentials.access_token, 'alt': 'json'}
+    answer = requests.get(userinfo_url, params=params)
+
+    data = answer.json()
+
+    login_session['username'] = data['name']
+    login_session['picture'] = data['picture']
+    login_session['email'] = data['email']
+
+    output = ''
+    output += '<h1>Welcome, '
+    output += login_session['username']
+    output += '!</h1>'
+    output += '<img src="'
+    output += login_session['picture']
+    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    flash("you are now logged in as %s" % login_session['username'])
+    print "done!"
+    return output
+
+
 
 @app.route('/restaurants/JSON/')
 def restaurantsJSON():
@@ -215,6 +305,10 @@ def conditionMenus(condition_id):
     laCondition = session.query(Condition).filter_by(id=condition_id).one()
     myMenus = session.query(MenuItem).filter_by(condition_id=condition_id)
     return render_template('conditionMenus.html', condition=laCondition, menus=myMenus)
+
+@app.route('/conditions/<int:condition_id>/menu/<int:menu_id>/', methods=['POST','GET'])
+def linkMenuToCondition(condition_id,menu_id):
+    return "recommended menu "+menu_id+" for condition "+condition_id
 
 if __name__ == '__main__':
     # If you enable debug support the server will reload itself on code changes
