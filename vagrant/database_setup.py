@@ -39,8 +39,8 @@ class MenuItem(Base):
     course = Column(String(250))
     restaurant_id = Column(Integer, ForeignKey('restaurant.id'))
     restaurant = relationship(Restaurant)
-    condition_id = Column(Integer, ForeignKey('condition.id'))
-    condition = relationship(Condition)
+    # condition_id = Column(Integer, ForeignKey('condition.id'))
+    # condition = relationship(Condition)
 
 
     @property
