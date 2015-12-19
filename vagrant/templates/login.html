@@ -3,30 +3,35 @@
 {% block head %}
 	{{super()}}
 	<meta name="google-signin-client_id" content="65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com">
-	<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+
 {% endblock %}
 {% block content %}
-
 	<body>
 		<div class='container'>
 			<div class='row'>
-			  	<div id='singinButton' class='col-xs-5'>
-			  		<span class="g-signin"
-			  		data-scope="openid email"
+			  	<div id='signInButton' class='col-xs-5'>
+			  		<!-- TODO:sign in does not redirect to restaurants page;sign out works.
+			  		with data-scope valued at openid email the questions are not asked; with the https value the questions asked.; both direct back to the login page.
+			  		if g-signin, sign in:internal server error 500 bu tline 47 output present; when clicking sign out,Uncaught TypeError: Cannot read property 'getAuthInstance' of undefined -->
+			  		<span class="g-signin2"
+			  		data-scope="https://www.googleapis.com/auth/plus.login"
 			  		data-clientid="65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com"
 			  		data-redirecturi="postmessage"
 			  		data-accesstype="offline"
 			  		data-cookiepolicy="single_host_origin"
-			  		data-callback="singInCallback"
-			  		data-approvalprompt="force">
+			  		data-onsuccess="onSignIn"
+			  		data-onfailure="onSignInFailure">
 			  		</span>
 			  	</div>
 		  	<div id='result' class='row'></div>
+
+
+			<button class="btn btn=info" type="submit" value="Sign Out">
+				<a href="#" onclick="signOut()">Sign Out the App</a>
+			</button>
 		</div>
 
-		<button class="btn btn=info" type="submit" value="Sign Out">
-			<a href="#" onclick="signOut()">Sign Out the App</a>
-		</button>
+		<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
 		<script>
 		function signOut() {
 		    var auth2 = gapi.auth2.getAuthInstance();
@@ -34,25 +39,30 @@
 		        console.log('User signed out.');
 		    });
 		}
-		function signInCallback(authResult) {
+		function onSignIn(authResult) {
+		  	// if google sends back the right response with the one-time code
 		  	if (authResult['code']) {
 		    	// Hide the sign-in button now that the user is authorized
-		    	$('#signinButton').attr('style', 'display: none');
+		    	$('#signInButton').attr('style', 'display: none');
+		    	console.log(authResult['code']);
+		    	$('#result').html(authResult['code']);
 		    	// Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
 		    	//.ajax handles the response from google to the client:one-time code to authorize the server and access token for client to access server from browser, and pass onto the server
 		    	$.ajax({
 			      type: 'POST',
-			      url: '/gconnect?state={{STATE}}',//server taking the one-time code from client
+			      url: '/gconnect/?state={{STATE}}',//sendee of request:server taking the one-time code from client
 			      processData: false,//not to process into string
 			      data: authResult['code'],//:what is sent to the server is the one-time use code
 			      contentType: 'application/octet-stream; charset=utf-8',
-			      success: function(result) { //if 200 from server...
+			      success: function(result) { //if 200 from google API Server...
 			        // Handle or verify the server response if necessary, pass to the client
+			        	console.log('result');
 			        	if (result) { //result: additional info from server
-				          	$('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+			        		console.log('result');
+				          	$('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...');
 				         	setTimeout(function() {
-				          		window.location.href = "/restaurants/";
-				         	}, 4000);
+				          		window.location.href='/restaurants/';
+				         	}, 5000);
 				      	} else if (authResult['error']) {
 				    		console.log('There was an error: ' + authResult['error']);//report the error from google
 				  		} else {
@@ -61,6 +71,10 @@
 			    	}//success
 			  	});//ajax
 			}//if
+			console.log('signin!');
+		}
+		function onSignInFailure() {
+			console.log("Sign In Failed");
 		}
 		</script>
     </body>

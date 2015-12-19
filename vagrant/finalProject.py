@@ -109,8 +109,8 @@ def gconnect():
     # 'Google ID Token's field (or claim) 'sub' is unique-identifier key for the user.
     gplus_id = credentials.id_token['sub']
     if result['user_id'] != gplus_id:
-        response = make_response(
-            json.dumps("Token's user ID doesn't match given user ID."), 401)
+        response = make_response(json.dumps
+            ("Token's user ID doesn't match given user ID."), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
 
