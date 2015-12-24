@@ -21,7 +21,7 @@ import requests # Requests is an Apache2 Licensed HTTP library, written in Pytho
 
 # if just do 'from manyRestaurants import Restaurant, session' and without the next 4 lines,get error
 # 'SQLite objects created in a thread can only be used in that same thread'
-engine = create_engine('sqlite:///restaurantmenu.db')
+engine = create_engine('sqlite:///restaurantmenu.db',echo=True)
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
@@ -100,6 +100,8 @@ def gconnect():
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1]) # loads:Deserialize to a Python object
     # If there was an error in the access token info, abort.
+    # dict.get(key, default=None)
+    # The method get() returns a value for the given key. If key unavailable then returns default None.
     if result.get('error') is not None:
         response = make_response(json.dumps(result.get('error')), 500)
         response.headers['Content-Type'] = 'application/json'
