@@ -21,8 +21,8 @@
 
 		{% for i in restaurants %}
 			<section class='panel panel-default'>
-				<p class='panel-heading'>
-					<p>{{i.name}}</p>
+				<h3 class='panel-heading'>{{i.name}}</h3>
+					<p>{{i.description}}</p>
 				<div class='panel-body'>
 					<div class='btn-group' role='group'>
 						<button type='button' class='btn btn-success'><a href={{url_for('showMenus',restaurant_id=i.id)}}> Menu </a></button>

@@ -5,14 +5,14 @@ body {
 	margin-left: auto;
 	margin-right: auto;
 
-
- background-color: #6b92b9;
- background-image: url('snow.png'), url('snow2.png'), url('snow3.png');
-
- -webkit-animation: snow 20s linear infinite;
- -moz-animation: snow 20s linear infinite;
- -ms-animation: snow 20s linear infinite;
- animation: snow 20s linear infinite;
+ background-color: rgba(0, 120, 120, 0.5);
+ /*background-color: #6b92b9;*/
+ background-image: url('snow.png');
+ */
+ -webkit-animation: snow 150s linear infinite;
+ -moz-animation: snow 150s linear infinite;
+ -ms-animation: snow 150s linear infinite;
+ animation: snow 150s linear infinite;
 
 }
 
@@ -37,4 +37,8 @@ body {
 }
 img {
 	max-width: 100%;
+}
+
+div.panel-body {
+	background-color: rgba(0, 0, 0, 0.1);
 }
