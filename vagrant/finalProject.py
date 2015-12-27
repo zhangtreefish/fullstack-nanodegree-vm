@@ -178,7 +178,7 @@ def showRestaurants():
 @app.route('/restaurants/new/', methods=['POST','GET'])
 def restaurantNew():
     if request.method == 'POST':
-        myNewRestaurant = Restaurant(name=request.form['newName'])
+        myNewRestaurant = Restaurant(name=request.form['newName'],description=request.form['newDescription'])
         session.add(myNewRestaurant)
         session.commit()
         flash('New restaurant ' + myNewRestaurant.name+' has been created!')
@@ -212,6 +212,7 @@ def restaurantDelete(restaurant_id):
             return "no such restaurant found"  # TODO: send error message when no such restaurant
     else:
         return render_template('deleteRestaurant.html', restaurant_id=restaurant_id, restaurant=laRestaurant)
+
 
 @app.route('/restaurants/<int:restaurant_id>/menu/JSON/')
 def restaurantMenuJSON(restaurant_id):
@@ -286,8 +287,13 @@ def deleteMenu(restaurant_id, menu_id):
 
 @app.route('/conditions/')
 def showConditions():
-    conditions = session.query(Condition).all()
-    return render_template('conditions.html', conditions=conditions)
+    try:
+        conditions = session.query(Condition).all()
+        return render_template('conditions.html', conditions=conditions)
+    except IOError as err:
+        return "No conditions, error:"
+    finally:
+        flash("This page will show all conditions")
 
 @app.route('/conditions/new/', methods=['POST','GET'])
 def newCondition():
@@ -301,6 +307,15 @@ def newCondition():
         return redirect(url_for('showConditions'))
     else:
         return render_template('newCondition.html')
+
+
+@app.route('/conditions/<int:condition_id>/edit', methods=['POST','GET'])
+def conditionEdit(condition_id):
+    return "edit condition"
+
+@app.route('/conditions/<int:condition_id>/delete',methods=['POST','GET'])
+def conditionDelete(condition_id):
+    return "delete condition"
 
 @app.route('/conditions/<int:condition_id>/menu/', methods=['POST','GET'])
 def conditionMenus(condition_id):

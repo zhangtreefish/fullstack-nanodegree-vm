@@ -19,23 +19,23 @@ body {
 }
 
 @keyframes snow {
- 0% {background-position: 500px 0px,0px 400px, 300px 0px;}
- 100% {background-position: 500px 1000px, 1200px 1200px, 0px 300px;}
+ 0% {background-position: 0px 0px;}
+ 100% {background-position: 0px 500px, 1200px 400px, 0px 0px;}
 }
 
 @-moz-keyframes snow {
  0% {background-position: 0px 0px;}
- 100% {background-position: 500px 1000px, 1200px 1200px, 300px 300px;}
+ 100% {background-position: 0px 500px, 400px 1200px, 300px 300px;}
 }
 
 @-webkit-keyframes snow {
 0% {background-position: 0px 0px;}
- 100% {background-position: 500px 1000px, 1200px 1200px, 300px 300px;}
+ 100% {background-position: 0px 500px, 400px 1200px, 300px 300px;}
 }
 
 @-ms-keyframes snow {
  0% {background-position: 0px 0px;}
- 100% {background-position: 500px 1000px, 1200px 1200px, 300px 300px;}
+ 100% {background-position: 0px 500px, 400px 1200px, 300px 300px;}
 }
 img {
 	max-width: 100%;
