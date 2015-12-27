@@ -15,8 +15,8 @@
         <nav class='navbar navbar-default'>
             <ul class='nav nav-pills nav-justified'>
                 <li role='presetation' class='active'><a href='{{url_for('showRestaurants')}}'>Restaurants</a></li>
-                <li role='presetation'><a href='#'>Menus</a></li>
-                <li role='presetation'><a href='#'>Conditions</a></li>
+                <li role='presetation'><a href='{{url_for('allMenusJSON')}}'>Menus</a></li>
+                <li role='presetation'><a href='{{url_for('showConditions')}}'>Conditions</a></li>
             </ul>
         </nav>
         <section>
