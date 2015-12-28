@@ -325,7 +325,8 @@ def conditionDelete(condition_id):
 @app.route('/conditions/<int:condition_id>/menu/', methods=['POST','GET'])
 def conditionMenus(condition_id):
     laCondition = session.query(Condition).filter_by(id=condition_id).one()
-    menus = session.query(condition_menu).filter_by(condition_id=condition_id)
+    # menus = session.query(MenuItem).filter(MenuItem.conditions.any(condition_id=condition_id)).all()
+    menus = laCondition.suggested_menus
     return render_template('conditionMenus.html', condition=laCondition, menus=menus) # TODO:restaurant_id;POST
 
 @app.route('/conditions/<int:condition_id>/menu/<int:menu_id>/', methods=['POST','GET'])
