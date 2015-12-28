@@ -32,12 +32,19 @@ session.add(myFirstMenu)
 session.add(mySecondMenu)
 session.commit()
 laRes = session.query(MenuItem).first().name
-print session.query(MenuItem).first().name
+print laRes
 
 myFirstCondition = Condition(name='diabetes',signs_and_symptoms='thirst, fatigue, frequent urination, weight loss')
+# link a menu to myFirstCondition
+diabeticMenu1 = MenuItem(name='baked sweet potato',
+                        description='sweet potato baked at 350 for 45 minutes, with skin',
+                        price='$3.00',
+                        course='vegetable',
+                        restaurant=mySecondRestaurant)
+session.add(diabeticMenu1)
+session.commit()
+myFirstCondition.suggested_menus.append(diabeticMenu1)
 session.add(myFirstCondition)
 session.commit()
-
-myFirstCondition.suggested_menus.append(myFirstMenu)
-session.add(myFirstCondition)
-session.commit()
+laCon = session.query(Condition).all()
+print laCon[0].suggested_menus[0].name

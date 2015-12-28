@@ -29,7 +29,7 @@ class Restaurant(Base):
                 'id':self.id
                 }
 
-association_table = Table('association',Base.metadata,
+condition_menu = Table('condition_menu',Base.metadata,
                           Column('condition_id', Integer, ForeignKey('condition.id')),
                           Column('menu_id', Integer, ForeignKey('menu_item.id'))
                           )
@@ -41,7 +41,7 @@ class Condition(Base):
     name = Column(String(80), nullable=False)
     id = Column(Integer, primary_key=True)
     signs_and_symptoms = Column(String(250))
-    suggested_menus = relationship('MenuItem',secondary=association_table, back_populates='conditions')
+    suggested_menus = relationship('MenuItem',secondary=condition_menu, back_populates='conditions')
 
 
 class MenuItem(Base):
@@ -54,7 +54,7 @@ class MenuItem(Base):
     course = Column(String(250))
     restaurant_id = Column(Integer, ForeignKey('restaurant.id'))
     restaurant = relationship('Restaurant', back_populates='menus')
-    conditions = relationship('Condition', secondary=association_table, back_populates='suggested_menus')
+    conditions = relationship('Condition', secondary=condition_menu, back_populates='suggested_menus')
 
 # Restaurant.menu_item = relationship('MenuItem',order_by=MenuItem.id,back_populates='restaurant')
 
