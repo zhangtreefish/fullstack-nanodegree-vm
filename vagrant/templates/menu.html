@@ -29,7 +29,7 @@
 			    	<span class='col-xs-3'style="text-align:right;color:green">{{i.price}}</span>
 					<i class='col-xs-12'>{{i.description}}</i>
 					<span class='col-xs-12 btn-group' role='group'>
-						<button type='button' class='btn btn-default col-xs-2'><a href={{url_for('editMenu', restaurant_id=restaurant.id, menu_id=i.id)}}> EDIT</a></button>
+						<button type='button' class='btn btn-default col-xs-2'><a href={{url_for('editMenu', restaurant_id=i.restaurant_id, menu_id=i.id)}}> EDIT</a></button>
 						<button type='button' class='btn btn-warning col-xs-2'><a href={{url_for('deleteMenu', restaurant_id=i.restaurant_id, menu_id=i.id)}}> DELETE</a></button>
 					</span>
 				</div>

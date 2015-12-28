@@ -322,16 +322,32 @@ def conditionEdit(condition_id):
 def conditionDelete(condition_id):
     return "delete condition"
 
-@app.route('/conditions/<int:condition_id>/menu/', methods=['POST','GET'])
+@app.route('/conditions/<int:condition_id>/menu/')
 def conditionMenus(condition_id):
     laCondition = session.query(Condition).filter_by(id=condition_id).one()
-    # menus = session.query(MenuItem).filter(MenuItem.conditions.any(condition_id=condition_id)).all()
     menus = laCondition.suggested_menus
-    return render_template('conditionMenus.html', condition=laCondition, menus=menus) # TODO:restaurant_id;POST
+    return render_template('conditionMenus.html', condition_id=condition_id,condition=laCondition, menus=menus)
 
-@app.route('/conditions/<int:condition_id>/menu/<int:menu_id>/', methods=['POST','GET'])
-def linkMenuToCondition(condition_id,menu_id):
-    return "recommended menu "+menu_id+" for condition "+condition_id
+# this method allows to add a menu suitable for certain condition to a restaurant
+@app.route('/conditions/<int:condition_id>/new/', methods=['GET','POST'])
+def newConditionMenu(condition_id):
+    if request.method == 'POST':
+        laCondition = session.query(Condition).filter_by(id=condition_id).one()
+        newConditionMenu = MenuItem(name=request.form['newName'],
+                             course=request.form['newCourse'],
+                             description=request.form['newDescription'],
+                             price=request.form['newPrice'],
+                             restaurant_id=request.form['newRestaurantId'])
+        newConditionMenu.conditions.append(laCondition)
+        # laCondition.suggested_menus.append(newConditionMenu)
+        session.add(newConditionMenu)
+        # session.add(laCondition)
+        session.commit()
+        flash('New menu ' + newConditionMenu.name+' has been created!')
+        return redirect(url_for('conditionMenus',condition_id=condition_id))
+    else:
+        laCondition = session.query(Condition).filter_by(id=condition_id).one()
+        return render_template('newConditionMenu.html',condition_id=condition_id, condition=laCondition)
 
 if __name__ == '__main__':
     # If you enable debug support the server will reload itself on code changes
