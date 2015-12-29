@@ -15,6 +15,7 @@ class Restaurant(Base):
     __tablename__ = 'restaurant'
 
     id = Column(Integer, primary_key=True)
+    # column 'name' is mapped to the 'name' attribute of class 'Restaurant'
     name = Column(String(250), nullable=False)
     description = Column(String(250))
     menus = relationship('MenuItem',back_populates='restaurant')
@@ -70,7 +71,6 @@ class MenuItem(Base):
              #   'restaurant':self.restaurant  # 'restaurant is not serializable'
                 }
 
+# issue CREATE statements for all tables using MetaData object created during declarative_base()
 engine = create_engine('sqlite:///restaurantmenu.db', echo=True)
-
-# use MetaData to issue CREATE TABLE statements to the database for all tables
 Base.metadata.create_all(engine)

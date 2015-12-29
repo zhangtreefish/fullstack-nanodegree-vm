@@ -4,7 +4,7 @@ app = Flask(__name__)
 import string
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Restaurant, MenuItem, Condition, Base, condition_menu
+from database_setup import Restaurant, MenuItem, Condition, Base, condition_menu, engine
 
 # New imports for state token
 from flask import session as login_session
@@ -316,11 +316,26 @@ def newCondition():
 
 @app.route('/conditions/<int:condition_id>/edit', methods=['POST','GET'])
 def conditionEdit(condition_id):
-    return "edit condition"
+    laCondition = session.query(Condition).filter_by(id=condition_id).one()
+    if request.method == 'POST':
+        laCondition.name = request.form['newName']
+        laCondition.signs_and_symptoms = request.form['newSignsAndSymptoms']
+        session.add(laCondition)
+        session.commit()
+        flash('the condition '+laCondition.name+' has been edited!')
+        return redirect(url_for('showConditions'))
+    else:
+        return render_template('editCondition.html',condition_id=condition_id,condition=laCondition)
 
 @app.route('/conditions/<int:condition_id>/delete',methods=['POST','GET'])
 def conditionDelete(condition_id):
-    return "delete condition"
+    laCondition = session.query(Condition).filter_by(id=condition_id).one()
+    if request.method == 'POST':
+        session.delete(laCondition)
+        flash('the condition '+laCondition.name+' has been deleted!')
+        return redirect(url_for('showConditions'))
+    else:
+        return render_template('deleteCondition.html',condition_id=condition_id,condition=laCondition)
 
 @app.route('/conditions/<int:condition_id>/menu/')
 def conditionMenus(condition_id):
@@ -333,6 +348,7 @@ def conditionMenus(condition_id):
 def newConditionMenu(condition_id):
     if request.method == 'POST':
         laCondition = session.query(Condition).filter_by(id=condition_id).one()
+        laRestaurant_id = session.query(Restaurant).filter_by(name=request.form['newRestaurantName']).one().id
         newConditionMenu = MenuItem(name=request.form['newName'],
                              course=request.form['newCourse'],
                              description=request.form['newDescription'],
@@ -347,7 +363,8 @@ def newConditionMenu(condition_id):
         return redirect(url_for('conditionMenus',condition_id=condition_id))
     else:
         laCondition = session.query(Condition).filter_by(id=condition_id).one()
-        return render_template('newConditionMenu.html',condition_id=condition_id, condition=laCondition)
+        restaurants = session.query(Restaurant).all()
+        return render_template('newConditionMenu.html',condition_id=condition_id, condition=laCondition,restaurants=restaurants)
 
 if __name__ == '__main__':
     # If you enable debug support the server will reload itself on code changes
