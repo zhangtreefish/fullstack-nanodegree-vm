@@ -10,7 +10,20 @@ from sqlalchemy import create_engine
 
 Base = declarative_base()
 
+# user:restaurant is one: many or many:many?; user:condition is one:many or many:many?; user:menu is there relationship?
+class User(Base):
+    __tablename__ = 'user'
 
+    id = Column(Integer, primary_key=True)
+    name = Column(String(25))
+    email = Column(String(30))
+    picture = Column(String(30))
+    restaurants = relationship('Restaurant', back_populates='user') # TODO:more rels
+    conditions = relationship('Condition', back_populates='user')
+    menus = relationship('MenuItem',back_populates='user')
+
+
+# restaurant:menu  is one:many;condition:menu is many:many;
 class Restaurant(Base):
     __tablename__ = 'restaurant'
 
@@ -19,6 +32,8 @@ class Restaurant(Base):
     name = Column(String(250), nullable=False)
     description = Column(String(250))
     menus = relationship('MenuItem',back_populates='restaurant')
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship('User',back_populates='restaurants')
 
     def __repr__(self):
         return "<Restaurant(name='%s', description='%s')>" % (
@@ -27,7 +42,9 @@ class Restaurant(Base):
     @property
     def serialize(self):
         return {'name':self.name,
-                'id':self.id
+                'description':self.description,
+                'id':self.id,
+                'user_id':self.user_id
                 }
 
 condition_menu = Table('condition_menu',Base.metadata,
@@ -43,7 +60,8 @@ class Condition(Base):
     id = Column(Integer, primary_key=True)
     signs_and_symptoms = Column(String(250))
     suggested_menus = relationship('MenuItem',secondary=condition_menu, back_populates='conditions')
-
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship('User', back_populates='conditions')
 
 class MenuItem(Base):
     __tablename__ = 'menu_item'
@@ -56,6 +74,8 @@ class MenuItem(Base):
     restaurant_id = Column(Integer, ForeignKey('restaurant.id'))
     restaurant = relationship('Restaurant', back_populates='menus')
     conditions = relationship('Condition', secondary=condition_menu, back_populates='suggested_menus')
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship('User', back_populates='menus')
 
 # Restaurant.menu_item = relationship('MenuItem',order_by=MenuItem.id,back_populates='restaurant')
 
@@ -72,5 +92,5 @@ class MenuItem(Base):
                 }
 
 # issue CREATE statements for all tables using MetaData object created during declarative_base()
-engine = create_engine('sqlite:///restaurantmenu.db', echo=True)
+engine = create_engine('sqlite:///restaurantmenuconditionuser.db', echo=True)
 Base.metadata.create_all(engine)

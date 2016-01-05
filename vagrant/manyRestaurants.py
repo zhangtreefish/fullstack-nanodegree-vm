@@ -1,8 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Restaurant, MenuItem, Condition, Base
+from database_setup import Restaurant, MenuItem, Condition, User, Base
 
-engine = create_engine('sqlite:///restaurantmenu.db')
+engine = create_engine('sqlite:///restaurantmenuconditionuser.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
@@ -48,3 +48,12 @@ session.add(myFirstCondition)
 session.commit()
 laCon = session.query(Condition).all()
 print laCon[0].suggested_menus[0].name
+
+myFirstUser = User(name='treefish',email='zhangtreefish@yahoo.com', picture='')
+session.add(myFirstUser)
+session.commit()
+myFirstUser.restaurants.append(myFirstRestaurant)
+myFirstUser.conditions.append(myFirstCondition)
+session.add(myFirstUser)
+session.commit()
+
