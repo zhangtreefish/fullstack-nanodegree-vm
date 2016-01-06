@@ -92,6 +92,8 @@ def showLoginFive():
 
 @app.route('/gconnect/', methods=['POST'])
 def gconnect():
+
+
     # Validate state token
     if request.args.get('state') != login_session['state']: # check what client sent is what server sent
         response = make_response(json.dumps('Invalid state parameter.'), 401)  #dumps:Serialize obj to a JSON formatted str
@@ -156,7 +158,7 @@ def gconnect():
         return response
 
     # Store the access token in the session for later use.
-    login_session.clear()
+
     login_session['credentials'] = credentials
     login_session['gplus_id'] = gplus_id
     login_session['access_token'] = credentials.access_token
@@ -171,6 +173,16 @@ def gconnect():
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
+
+    # check to see if user exist
+    # user = session.query(User).one()
+    # if user is None:
+    #     createUser(login_session)
+    # print user.name
+    user_id = getUserId(login_session['email'])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id
 
     output = ''
     output += '<h1>Welcome, '
@@ -263,13 +275,19 @@ def restaurantsJSON():
 
 @app.route('/restaurants/')
 def showRestaurants():
-	try:
-		restaurants = session.query(Restaurant).all()
-		return render_template('restaurants.html', restaurants=restaurants)
-	except IOError as err:
-		return "No restaurant, error:"
-	finally:
-		flash("This page will show all my restaurants")
+    try:
+        restaurants = session.query(Restaurant).all()
+        owner_id = session.query(Restaurant).first().user_id
+        owner = getUserInfo(owner_id)
+        # if login_session['user_id'] == owner_id : TODO: why this line cause [KeyError: 'user_id']
+        if login_session.get('user_id') is None:
+            return render_template('restaurantsPublic.html', restaurants=restaurants)
+        else:
+            return render_template('restaurants.html', restaurants=restaurants)
+    except IOError as err:
+        return "No restaurant, error:"
+    finally:
+        flash("This page will show all my restaurants")
 
 @app.route('/restaurants/new/', methods=['POST','GET'])
 def restaurantNew():
@@ -304,6 +322,10 @@ def restaurantEdit(restaurant_id):
 @app.route('/restaurants/<int:restaurant_id>/delete/',methods=['POST','GET'])
 def restaurantDelete(restaurant_id):
     laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+    if login_session.get('username') is None:
+        return redirect(url_for('showLogin'))
+    if login_session['user_id'] != laRestaurant.user_id:
+        return render_template('notAuthorized.html')
     if request.method == 'POST':
         if(laRestaurant):
             session.delete(laRestaurant)
@@ -313,8 +335,6 @@ def restaurantDelete(restaurant_id):
         else:
             return "no such restaurant found"  # TODO: send error message when no such restaurant
     else:
-        if login_session.get('username') is None:
-            return redirect(url_for('showLogin'))
         return render_template('deleteRestaurant.html', restaurant_id=restaurant_id, restaurant=laRestaurant)
 
 
@@ -341,8 +361,12 @@ def menuJSON(restaurant_id, menu_id):
 def showMenus(restaurant_id):
     # without one(), gets error 'AttributeError: 'Query' object has no attribute 'id''
     laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-    myMenus = session.query(MenuItem).filter_by(restaurant_id=restaurant_id)
-    return render_template('menu.html', restaurant=laRestaurant, menus=myMenus)
+    myMenus = session.query(MenuItem).filter_by(restaurant_id=restaurant_id).all()
+    owner = getUserInfo(laRestaurant.user_id)
+    if login_session.get('username') is None or laRestaurant.user_id != login_session['user_id']:
+        return render_template('menuPublic.html', restaurant=laRestaurant, menus=myMenus)
+    else:
+        return render_template('menu.html', restaurant=laRestaurant, menus=myMenus,user=owner)
 
 # @app.route('/')
 @app.route('/restaurants/<int:restaurant_id>/new/', methods=['GET','POST'])
@@ -372,11 +396,11 @@ def newMenu(restaurant_id):
 def editMenu(restaurant_id, menu_id):
     laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
-    	laMenu.name = request.form['newName']
-    	laMenu.course = request.form['newCourse']
-    	laMenu.description = request.form['newDescription']
-    	laMenu.price = request.form['newPrice']
-    	session.add(laMenu)
+        laMenu.name = request.form['newName']
+        laMenu.course = request.form['newCourse']
+        laMenu.description = request.form['newDescription']
+        laMenu.price = request.form['newPrice']
+        session.add(laMenu)
         session.commit()
         flash('The menu '+laMenu.name + ' has been edited!')
         return redirect(url_for('showMenus',restaurant_id=restaurant_id))
@@ -391,11 +415,11 @@ def editMenu(restaurant_id, menu_id):
 def deleteMenu(restaurant_id, menu_id):
     laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
-    	name =  laMenu.name
-    	session.delete(laMenu)
-    	session.commit()
-    	flash('the menu '+name+' has been deleted!')
-    	return redirect(url_for('showMenus',restaurant_id=restaurant_id))
+        name =  laMenu.name
+        session.delete(laMenu)
+        session.commit()
+        flash('the menu '+name+' has been deleted!')
+        return redirect(url_for('showMenus',restaurant_id=restaurant_id))
     else:
         if login_session.get('username') is None:
             return redirect(url_for('showLogin'))
