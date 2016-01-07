@@ -4,7 +4,7 @@
 	{{super()}}
 {% endblock %}
 {% block content %}
-	<body>
+	<section>
 		<h1> New Menu for {{condition.name.title()}} </h1> <!--TODO: expression not working anymore-->
 		<form action='{{url_for('newConditionMenu', condition_id=condition_id )}}' method='post'>
 			<div class='form-group'>
@@ -33,5 +33,5 @@
 			</div>
 			<input type='submit' class='btn btn-success' value="Create">
 		</form>
-	</body>
+	</section>
 {% endblock %}

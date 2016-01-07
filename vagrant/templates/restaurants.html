@@ -4,7 +4,7 @@
 	{{super()}}
 {% endblock %}
 {% block content %}
-	<body>
+	<section>
 		<h1> All Restaurants </h1>
 		<button type='button' class='btn btn-success'><a href={{url_for('restaurantNew')}}> Create a New Restaurant, {{user.name}}!</a></button>
 		<p>
@@ -33,6 +33,6 @@
 				</div>
 			</section>
 		{% endfor %}
-	</body>
+	</section>
 {% endblock %}
 

@@ -4,7 +4,7 @@
 	{{super()}}
 {% endblock %}
 {% block content %}
-	<body class="container">
+	<section class="container">
 		<div class='row panel panel-default'>
 		  	<button type='button' class='btn btn-success'>
 		  		<a href='{{url_for('newConditionMenu', condition_id=condition_id)}}'> Suggest a New Menu</a>
@@ -41,6 +41,6 @@
 				</div>
 			{% endfor %}
 		</div>
-    </body>
+    </section>
 {% endblock %}
 

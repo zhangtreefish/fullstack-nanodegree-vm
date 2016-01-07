@@ -31,6 +31,7 @@ CLIENT_ID = json.loads(
 
 APPLICATION_NAME = "Therapeutic Foods Restaurants"
 
+# Here I added id init, different from instructor's; removed; unique constraint
 def createUser(login_session):
     newUser = User(name=login_session['username'],
                    email=login_session['email'],
@@ -38,7 +39,9 @@ def createUser(login_session):
                    )
     session.add(newUser)
     session.commit()
-    user=session.query(User).filter_by(email=login_session['email']).one()
+    # user=session.query(User).filter_by(email=login_session['email']).one() # TODO: multiple rows were found for one()
+    user=session.query(User).filter_by(email=login_session['email']).first()
+    print user.name
     return user.id
 
 def getUserInfo(user_id):
@@ -185,7 +188,8 @@ def gconnect():
     login_session['user_id'] = user_id
 
     output = ''
-    output += '<h1>Welcome, '
+    output += '<h1>Welcome, User'
+    output += login_session['user_id']
     output += login_session['username']
     output += '!</h1>'
     output += '<img src="'
@@ -277,13 +281,12 @@ def restaurantsJSON():
 def showRestaurants():
     try:
         restaurants = session.query(Restaurant).all()
-        owner_id = session.query(Restaurant).first().user_id
-        owner = getUserInfo(owner_id)
         # if login_session['user_id'] == owner_id : TODO: why this line cause [KeyError: 'user_id']
         if login_session.get('user_id') is None:
             return render_template('restaurantsPublic.html', restaurants=restaurants)
         else:
-            return render_template('restaurants.html', restaurants=restaurants)
+            owner = getUserInfo(createUser(login_session)) #aha! This addressed 'username' error
+            return render_template('restaurants.html', restaurants=restaurants,user=owner)
     except IOError as err:
         return "No restaurant, error:"
     finally:
@@ -302,7 +305,9 @@ def restaurantNew():
     else:
         if login_session.get('username') is None:
             return redirect(url_for('showLogin'))
-        return render_template('newRestaurant.html')
+        else:
+            owner = createUser(login_session['user_id'])
+            return render_template('newRestaurant.html',user=owner)
 
 @app.route('/restaurants/<int:restaurant_id>/edit/', methods=['POST','GET'])
 def restaurantEdit(restaurant_id):
