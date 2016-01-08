@@ -38,23 +38,60 @@
               // This function is called when someone finishes with the Login
               // Button.  See the onlogin handler attached to it in the sample
               // code below.
-            function checkLoginState() {
-                FB.getLoginStatus(function(response) {
-                  statusChangeCallback(response);
-                });
-              }
+            // function checkLoginState() {
+            //     FB.getLoginStatus(function(response) {
+            //       statusChangeCallback(response);
+            //     });
+            //   }
+            function sendTokenToServer() {
+                // console.log(FB.getLoginStatus()); undefined
+                var access_token = FB.getAuthResponse()['accessToken'];
+                console.log(access_token);
+                // console.log(getLoginStatus()); TODO: not defined?
+                // FB.api('/me',function(response) {
+                //     console.log('Successful login at FB for:',response['name']);
+                // });
+                $.ajax({
+                  type: 'POST',
+                  url: '/fbconnect/?state={{STATE}}',//url points to the destination of request:server relaying the one-time code from client to the auth server g+
+                  processData: false,//not to process into string
+                  data: access_token,//:what is sent to the server is the one-time use code
+                  contentType: 'application/octet-stream; charset=utf-8',
+                  success: function(result) {
+                    // Handle or verify the server response if necessary, pass to the client
+                        $('#result').html(result);
+                        if (result) { //result: additional info from server
+                            $('#result').html(result);
+                            $('#result').html('Login at FB Successful!</br>'+ result + '</br>Redirecting...');
+                            setTimeout(function() {
+                                window.location.href='/restaurants/';
+                            }, 5000);
+                        } else if (authResult['error']) {
+                            console.log('There was an error: ' + authResult['error']);//report the error from google
+                        } else {
+                            $('#result').html('Failed to make a server-side call. Check your configuration and console.');// if no response from server to the callback
+                        }
+                    }//success
+                });//ajax
+
+                console.log('signed in!');
+            }
 
             window.fbAsyncInit = function() {
+                // init:initialize and setup the SDK;
+                //xfbml: whether XFBML tags used by social plugins are parsed; default to false
                 FB.init({
                     appId      : '511225495725100',
                     xfbml      : true,
                     version    : 'v2.5'
                 });
+
+                FB.getLoginStatus(function(response) {
+                    statusChangeCallback(response);
+                });
             };
 
-        //     FB.getLoginStatus(function(response) {
-        //         statusChangeCallback(response);
-        //     });
+
 
         // };
             (function(d, s, id){
@@ -69,17 +106,18 @@
             function testAPI() {
                 console.log('Welcome!  Fetching your information.... ');
                 FB.api('/me', function(response) {
-                  console.log('Successful login for: ' + response.name);
+                  console.log('Successful login for: ', response.name);
                   document.getElementById('status').innerHTML =
                     'Thanks for logging in, ' + response.name + '!';
                 });
               }
         </script>
-        <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+        <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
         </fb:login-button>
 
         <div id="status">
         </div>
+        <div id="result"></div>
         <div
             class="fb-like"
             data-share="true"

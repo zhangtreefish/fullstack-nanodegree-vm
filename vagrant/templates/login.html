@@ -49,7 +49,7 @@
 		    	//.ajax handles the response from google to the client:one-time code to authorize the server and access token for client to access server from browser, and pass onto the server
 		    	$.ajax({
 			      type: 'POST',
-			      url: '/gconnect/?state={{STATE}}',//sendee of request:server taking the one-time code from client
+			      url: '/gconnect/?state={{STATE}}',//url points to the destination of request:server relaying the one-time code from client to the auth server g+
 			      processData: false,//not to process into string
 			      data: authResult['code'],//:what is sent to the server is the one-time use code
 			      contentType: 'application/octet-stream; charset=utf-8',
