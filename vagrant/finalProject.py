@@ -19,6 +19,10 @@ import json
 from flask import make_response
 import requests # Requests is an Apache2 Licensed HTTP library, written in Python, for human beings.
 
+# from Facebook OAuth 2 Tutorial
+# from requests_oauthlib import OAuth2Session
+# from requests_oauthlib.compliance_fixes import facebook_compliance_fix
+
 # if just do 'from manyRestaurants import Restaurant, session' and without the next 4 lines,get error
 # 'SQLite objects created in a thread can only be used in that same thread'
 engine = create_engine('sqlite:///restaurantmenuconditionuser.db',echo=True)
@@ -160,7 +164,7 @@ def gconnect():
         return jsonify(message='Current user is already connected.'),200
 
     # Store the access token in the session for later use.
-
+    login_session['provider'] = 'google+'
     login_session['credentials'] = credentials
     login_session['gplus_id'] = gplus_id
     login_session['access_token'] = credentials.access_token
@@ -188,7 +192,7 @@ def gconnect():
 
     output = ''
     output += '<h1>Welcome, User'
-    output += login_session['user_id']
+    output += str(login_session['user_id'])
     output += login_session['username']
     output += '!</h1>'
     output += '<img src="'
@@ -214,7 +218,7 @@ def gdisconnect():  # TODO: put on login.html?
     print access_token
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
-    result = h.request(url, 'GET')[0]
+    result = h.request(url, 'DELETE')[0]
 
     if result['status'] == 200:  # TODO: why 200 means to clear cache while '200' not
         # Reset the user's session
@@ -238,17 +242,20 @@ def gdisconnect():  # TODO: put on login.html?
 @app.route('/fbconnect/', methods=['POST'])
 def fbconnect():
     # Validate state token
+    print request.args.get('state')
+    print login_session['state']
     if request.args.get('state') != login_session['state']: # check what client sent is what server sent
         response = make_response(json.dumps('Invalid state parameter.'), 401)  #dumps:Serialize obj to a JSON formatted str
         response.headers['Content-Type'] = 'application/json'
         return response
     # Obtain the one-time authorization code from authorization server
     code = request.data
-    print 'code',code
+    print 'code'
+    print code
 
     try:
         # Upgrade the authorization code into a credentials object
-        oauth_flow = flow_from_clientsecrets('fb_client_secret.json', scope='', # creates a Flow object from a client_secrets.json file
+        oauth_flow = flow_from_clientsecrets('fb_client_secrets.json', scope='', # creates a Flow object from a client_secrets.json file
                                              redirect_uri = 'postmessage')
         credentials = oauth_flow.step2_exchange(code)  # exchanges an authorization code for a Credentials object
     except FlowExchangeError:
@@ -261,68 +268,59 @@ def fbconnect():
     # A Credentials object holds refresh and access tokens that authorize access
     # to a single user's data. These objects are applied to httplib2.Http objects to
     # authorize access.
+    print 'credentials'
     print credentials
     access_token = credentials.access_token
-    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
-           % access_token)
+    app_info = json.loads(open('fb_client_secret.json','r').read())
+    print app_info.json() # why print not working?
+    app_id = app_info['web']['app_id']
+    app_secret = app_info['web']['app_secret']
+    token_url = 'https://graph.facebook.com/oauth/access_token?\
+                 grant_type=fb_exchange_token&\
+                 client_id=%s&\
+                 client_secret=%s&\
+                 fb_exchange_token=%s' % (app_id,app_secret,access_token)
+
+    # redirect_uri = 'http://localhost:5000/'
+    # facebook = OAuth2Session(client_id, redirect_uri=redirect_uri)
+    # facebook = facebook_compliance_fix(facebook)
+    # access_token = facebook.fetch_token(token_url, client_secret=client_secret)
+    # print 'Please go here and authorize,', authorization_url
+
+
     h = httplib2.Http()
-    result = json.loads(h.request(url, 'GET')[1]) # loads:Deserialize to a Python object
-    # If there was an error in the access token info, abort.
-    # dict.get(key, default=None)
-    # The method get() returns a value for the given key. If key unavailable then returns default None.
-    # make_response(data, *args, **kwargs):data-Python object containing response data to be transformed
-    if result.get('error') is not None:
-        response = make_response(json.dumps(result.get('error')), 500)
-        response.headers['Content-Type'] = 'application/json'
+    # result = json.loads(h.request(token_url, 'GET')[1]) # loads:Deserialize to a Python object
 
-    # Verify that the access token is used for the intended user.
-    # id_token: object, The identity of the resource owner.
-    # 'Google ID Token's field (or claim) 'sub' is unique-identifier key for the user.
-    gplus_id = credentials.id_token['sub']
-    if result['user_id'] != gplus_id:
-        response = make_response(json.dumps
-            ("Token's user ID doesn't match given user ID."), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+    result = h.request(token_url, 'GET')[1]
+    token = result.split("&")[0]
+    print result[0]
 
-    # Verify that the access token is valid for this app.
-    if result['issued_to'] != CLIENT_ID:
-        response = make_response(
-            json.dumps("Token's client ID does not match app's."), 401)
-        print "Token's client ID does not match app's."
-        response.headers['Content-Type'] = 'application/json'
-        return response
+    userinfo_url = 'https://graph.facebook.com/v2.5/me?%s&fields=name,id,email' % token
+    h = httplib2.Http()
+    data=json.loads(h.request(userinfo_url, 'GET'))
 
-    stored_credentials = login_session.get('credentials')
-    stored_gplus_id = login_session.get('gplus_id')
-    if stored_credentials is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+
+    # stored_credentials = login_session.get('credentials')
+    # stored_gplus_id = login_session.get('gplus_id')
+    # if stored_credentials is not None and gplus_id == stored_gplus_id:
+    #     response = make_response(json.dumps('Current user is already connected.'),
+    #                              200)
+    #     response.headers['Content-Type'] = 'application/json'
+    #     return response
 
     # Store the access token in the session for later use.
 
-    login_session['credentials'] = credentials
-    login_session['gplus_id'] = gplus_id
-    login_session['access_token'] = credentials.access_token
-
-    # Get user info
-    userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
-    params = {'access_token': credentials.access_token, 'alt': 'json'}
-    answer = requests.get(userinfo_url, params=params)
-
-    data = answer.json()
-
+    login_session['provider'] = 'facebook'
     login_session['username'] = data['name']
-    login_session['picture'] = data['picture']
     login_session['email'] = data['email']
+    login_session['facebook_id'] = data['id']
 
-    # check to see if user exist
-    # user = session.query(User).one()
-    # if user is None:
-    #     createUser(login_session)
-    # print user.name
+    user_pic_url = 'https://graph.facebook.com/v2.5/me/picture?%s \
+                    &redirect=0&height=200&width=200' % token
+    h = httplib2.Http()
+    pic = json.loads(h.request(user_pic_url, 'GET'))
+    login_session['picture'] = pic['data']['url']
+
     user_id = getUserId(login_session['email'])
     if not user_id:
         user_id = createUser(login_session)
@@ -337,8 +335,45 @@ def fbconnect():
     output += login_session['picture']
     output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['username'])
-    print "done!"
+    print "done via FB!"
     return output
+
+@app.route('/fbdisconnect/')
+def fbdisconnect():  # TODO: put on login.html?
+
+    # Execute HTTP GET request to revoke current token
+    facebook_id = login_session['facebook_id']
+    url = 'https://accounts.google.com/%s/permissions' % facebook_id
+    h = httplib2.Http()
+    result = h.request(url, 'DELETE')[0]
+
+    if result['status'] == 200:  # TODO: why 200 means to clear cache while '200' not
+        # Reset the user's session
+        del login_session['facebook_id']
+        del login_session['user_id']
+        del login_session['username']
+        del login_session['email']
+        del login_session['picture']
+
+        # response = make_response(json.dumps('User successfully disconnected.'), 200)
+        # response.headers['Content-Type'] = 'application/json'
+        # return  response
+        return jsonify(message='User successfully disconnected from FB.'), 200
+    else:
+        # response = make_response(json.dumps('Failed to revoke token for given user.'), 400)
+        # response.headers['Content-Type'] = 'application/json'
+        # return response
+        return jsonify(message='Failed to revoke token for given user.'), 400
+
+@app.route('/disconnect/')
+def disconnect():
+    if login_session['provider'] == 'google+':
+        return redirect(url_for('gdisconnect'))
+    elif login_session['provider'] == 'facebook':
+        return redirect(url_for('fbdisconnect'))
+    else:
+        flash('You are not logged in to begin with!')
+        return redirect(url_for('showRestaurants'))
 
 @app.route('/restaurants/JSON/')
 def restaurantsJSON():

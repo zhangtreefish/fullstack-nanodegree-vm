@@ -12,125 +12,19 @@
         {% endblock %}
     </head>
     <body>
-        <script>
-            function statusChangeCallback(response) {
-                console.log('statusChangeCallback');
-                console.log(response);
-                // The response object is returned with a status field that lets the
-                // app know the current login status of the person.
-                // Full docs on the response object can be found in the documentation
-                // for FB.getLoginStatus().
-                if (response.status === 'connected') {
-                  // Logged into your app and Facebook.
-                  testAPI();
-                } else if (response.status === 'not_authorized') {
-                  // The person is logged into Facebook, but not your app.
-                  document.getElementById('status').innerHTML = 'Please log ' +
-                    'into this app.';
-                } else {
-                  // The person is not logged into Facebook, so we're not sure if
-                  // they are logged into this app or not.
-                  document.getElementById('status').innerHTML = 'Please log ' +
-                    'into Facebook.';
-                }
-              }
-
-              // This function is called when someone finishes with the Login
-              // Button.  See the onlogin handler attached to it in the sample
-              // code below.
-            // function checkLoginState() {
-            //     FB.getLoginStatus(function(response) {
-            //       statusChangeCallback(response);
-            //     });
-            //   }
-            function sendTokenToServer() {
-                // console.log(FB.getLoginStatus()); undefined
-                var access_token = FB.getAuthResponse()['accessToken'];
-                console.log(access_token);
-                // console.log(getLoginStatus()); TODO: not defined?
-                // FB.api('/me',function(response) {
-                //     console.log('Successful login at FB for:',response['name']);
-                // });
-                $.ajax({
-                  type: 'POST',
-                  url: '/fbconnect/?state={{STATE}}',//url points to the destination of request:server relaying the one-time code from client to the auth server g+
-                  processData: false,//not to process into string
-                  data: access_token,//:what is sent to the server is the one-time use code
-                  contentType: 'application/octet-stream; charset=utf-8',
-                  success: function(result) {
-                    // Handle or verify the server response if necessary, pass to the client
-                        $('#result').html(result);
-                        if (result) { //result: additional info from server
-                            $('#result').html(result);
-                            $('#result').html('Login at FB Successful!</br>'+ result + '</br>Redirecting...');
-                            setTimeout(function() {
-                                window.location.href='/restaurants/';
-                            }, 5000);
-                        } else if (authResult['error']) {
-                            console.log('There was an error: ' + authResult['error']);//report the error from google
-                        } else {
-                            $('#result').html('Failed to make a server-side call. Check your configuration and console.');// if no response from server to the callback
-                        }
-                    }//success
-                });//ajax
-
-                console.log('signed in!');
-            }
-
-            window.fbAsyncInit = function() {
-                // init:initialize and setup the SDK;
-                //xfbml: whether XFBML tags used by social plugins are parsed; default to false
-                FB.init({
-                    appId      : '511225495725100',
-                    xfbml      : true,
-                    version    : 'v2.5'
-                });
-
-                FB.getLoginStatus(function(response) {
-                    statusChangeCallback(response);
-                });
-            };
-
-
-
-        // };
-            (function(d, s, id){
-                var js, fjs = d.getElementsByTagName(s)[0];
-                    if (d.getElementById(id)) {return;}
-                    js = d.createElement(s);
-                    js.id = id;
-                    js.src = "//connect.facebook.net/en_US/sdk.js";
-                    fjs.parentNode.insertBefore(js, fjs);
-                }(document, 'script', 'facebook-jssdk'));
-
-            function testAPI() {
-                console.log('Welcome!  Fetching your information.... ');
-                FB.api('/me', function(response) {
-                  console.log('Successful login for: ', response.name);
-                  document.getElementById('status').innerHTML =
-                    'Thanks for logging in, ' + response.name + '!';
-                });
-              }
-        </script>
-        <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
-        </fb:login-button>
-
-        <div id="status">
-        </div>
-        <div id="result"></div>
-        <div
-            class="fb-like"
-            data-share="true"
-            data-width="450"
-            data-show-faces="true">
-        </div>
         <nav class='navbar navbar-default'>
             <ul class='nav nav-pills nav-justified'>
                 <li role='presetation' class='active'><a href='{{url_for('showRestaurants')}}'>Restaurants</a></li>
                 <li role='presetation'><a href='{{url_for('allMenusJSON')}}'>Menus</a></li>
                 <li role='presetation'><a href='{{url_for('showConditions')}}'>Conditions</a></li>
+                {% if 'username' not in session %}
+                <a href='{{url_for('showLogin')}}'>Click here to log in</a>
+                {% else %}
+                <a href='{{url_for('disconnect')}}'>Logout</a>
+                {% endif %}
             </ul>
         </nav>
+
         <section>
             <div id='content' class='container-fluid'>{% block content %}{% endblock %}</div>
         </section>
