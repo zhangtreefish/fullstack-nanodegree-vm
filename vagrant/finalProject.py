@@ -261,30 +261,30 @@ def fbconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     # Obtain the one-time authorization code from authorization server
-    code = request.data
+    access_token = request.data
     print 'code'
-    print code
+    print 'fb access_token:',access_token  # works
 
-    try:
-        # Upgrade the authorization code into a credentials object
-        oauth_flow = flow_from_clientsecrets('fb_client_secrets.json', scope='', # creates a Flow object from a client_secrets.json file
-                                             redirect_uri = 'postmessage')
-        credentials = oauth_flow.step2_exchange(code)  # exchanges an authorization code for a Credentials object
-    except FlowExchangeError:
-        response = make_response(
-            json.dumps('Failed to upgrade the authorization code.'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+    # try:
+    #     # Upgrade the authorization code into a credentials object
+    #     oauth_flow = flow_from_clientsecrets('fb_client_secrets.json', scope='', # creates a Flow object from a client_secrets.json file
+    #                                          redirect_uri = 'postmessage')
+    #     credentials = oauth_flow.step2_exchange(code)  # exchanges an authorization code for a Credentials object
+    # except FlowExchangeError:
+    #     response = make_response(
+    #         json.dumps('Failed to upgrade the authorization code.'), 401)
+    #     response.headers['Content-Type'] = 'application/json'
+    #     return response
 
     # Check that the access token is valid.
     # A Credentials object holds refresh and access tokens that authorize access
     # to a single user's data. These objects are applied to httplib2.Http objects to
     # authorize access.
-    print 'credentials'
-    print credentials
-    access_token = credentials.access_token
-    app_info = json.loads(open('fb_client_secret.json','r').read())
-    print app_info.json() # why print not working?
+    # print 'credentials'
+    # print credentials
+
+    app_info = json.loads(open('fb_client_secrets.json','r').read())
+    # print app_info.to_json() # why print not working?
     app_id = app_info['web']['app_id']
     app_secret = app_info['web']['app_secret']
     token_url = 'https://graph.facebook.com/oauth/access_token?\
@@ -304,23 +304,13 @@ def fbconnect():
     # result = json.loads(h.request(token_url, 'GET')[1]) # loads:Deserialize to a Python object
 
     result = h.request(token_url, 'GET')[1]
+    print 'result:',result # TODO nothign
     token = result.split("&")[0]
-    print result[0]
+    print 'token:',token
 
     userinfo_url = 'https://graph.facebook.com/v2.5/me?%s&fields=name,id,email' % token
     h = httplib2.Http()
-    data=json.loads(h.request(userinfo_url, 'GET'))
-
-
-    # stored_credentials = login_session.get('credentials')
-    # stored_gplus_id = login_session.get('gplus_id')
-    # if stored_credentials is not None and gplus_id == stored_gplus_id:
-    #     response = make_response(json.dumps('Current user is already connected.'),
-    #                              200)
-    #     response.headers['Content-Type'] = 'application/json'
-    #     return response
-
-    # Store the access token in the session for later use.
+    data=json.loads(h.request(userinfo_url, 'GET')[1])
 
     login_session['provider'] = 'facebook'
     login_session['username'] = data['name']
@@ -402,7 +392,7 @@ def disconnect():
 # @app.route('/disconnect/')
 # def disconnect():
 #     if 'provider' in login_session:
-#         if login_session['provider'] == 'google':
+#         if login_session['provider'] == 'google': #TODO: why not work?
 #             gdisconnect()
 #             return redirect(url_for('gdisconnect'))
 #         elif login_session['provider'] == 'facebook':
