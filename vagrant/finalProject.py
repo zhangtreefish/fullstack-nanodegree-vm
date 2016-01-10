@@ -11,6 +11,9 @@ from flask import session as login_session
 import random
 import string
 
+# import for new gconnect using verify_id_token API
+from oauth2client import client, crypt
+
 # IMPORTS FOR gconnect
 from oauth2client.client import flow_from_clientsecrets  # creates a Flow object from a client_secrets.json file
 from oauth2client.client import FlowExchangeError
@@ -30,7 +33,7 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-CLIENT_ID = json.loads(
+G_CLIENT_ID = json.loads(
     open('client_secret.json', 'r').read())['web']['client_id']
 
 APPLICATION_NAME = "Therapeutic Foods Restaurants"
@@ -125,6 +128,7 @@ def gconnect():
            % access_token)
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1]) # loads:Deserialize to a Python object
+    print "result:",result
     # If there was an error in the access token info, abort.
     # dict.get(key, default=None)
     # The method get() returns a value for the given key. If key unavailable then returns default None.
@@ -133,24 +137,26 @@ def gconnect():
         # response.headers['Content-Type'] = 'application/json'
         return jsonify(message=result.get('error')),500
 
+
+
     # Verify that the access token is used for the intended user.
     # id_token: object, The identity of the resource owner.
     # 'Google ID Token's field (or claim) 'sub' is unique-identifier key for the user.
     gplus_id = credentials.id_token['sub']
     if result['user_id'] != gplus_id:
-        # response = make_response(json.dumps
-        #     ("Token's user ID doesn't match given user ID."), 401)
-        # response.headers['Content-Type'] = 'application/json'
-        # return response
+        response = make_response(json.dumps
+            ("Token's user ID doesn't match given user ID."), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
         return jsonify(message="Token's user ID doesn't match given user ID."),401
 
     # Verify that the access token is valid for this app.
-    if result['issued_to'] != CLIENT_ID:
-        # response = make_response(
-        #     json.dumps("Token's client ID does not match app's."), 401)
-        # print "Token's client ID does not match app's."
-        # response.headers['Content-Type'] = 'application/json'
-        # return response
+    if result['issued_to'] != G_CLIENT_ID:
+        response = make_response(
+            json.dumps("Token's client ID does not match app's."), 401)
+        print "Token's client ID does not match app's."
+        response.headers['Content-Type'] = 'application/json'
+        return response
         return jsonify(message="Token's client ID does not match app's."),401
 
 
@@ -164,7 +170,7 @@ def gconnect():
         return jsonify(message='Current user is already connected.'),200
 
     # Store the access token in the session for later use.
-    login_session['provider'] = 'google+'
+    login_session['provider'] = 'google'
     login_session['credentials'] = credentials
     login_session['gplus_id'] = gplus_id
     login_session['access_token'] = credentials.access_token
@@ -203,9 +209,11 @@ def gconnect():
     return output
 
 
+
 @app.route('/gdisconnect/')
 def gdisconnect():  # TODO: put on login.html?
     # Only a connected user
+    print 'login_session:',login_session
     credentials = login_session.get('credentials')
     if credentials is None:
         response = make_response(json.dumps('Current user not connected.'), 401)
@@ -215,19 +223,23 @@ def gdisconnect():  # TODO: put on login.html?
 
     # Execute HTTP GET request to revoke current token
     access_token = credentials.access_token
-    print access_token
+    print 'access_token:',access_token
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
-    result = h.request(url, 'DELETE')[0]
-
-    if result['status'] == 200:  # TODO: why 200 means to clear cache while '200' not
+    result = h.request(url, 'GET')
+    print 'gdisconnect request result:', result
+    print "login_session['username'] before del:",login_session['username']
+    if result[0]['status'] == 200:  # TODO: why 200 means to clear cache while '200' not
         # Reset the user's session
         del login_session['credentials']
         del login_session['gplus_id']
+
         del login_session['username']
         del login_session['email']
         del login_session['picture']
-
+        del login_session['provider']
+        del login_session['user_id']
+        print "login_session['username'] after del:",login_session['username']
         # response = make_response(json.dumps('User successfully disconnected.'), 200)
         # response.headers['Content-Type'] = 'application/json'
         # return  response
@@ -328,7 +340,7 @@ def fbconnect():
 
     output = ''
     output += '<h1>Welcome, User'
-    output += login_session['user_id']
+    output += str(login_session['user_id'])
     output += login_session['username']
     output += '!</h1>'
     output += '<img src="'
@@ -345,7 +357,7 @@ def fbdisconnect():  # TODO: put on login.html?
     facebook_id = login_session['facebook_id']
     url = 'https://accounts.google.com/%s/permissions' % facebook_id
     h = httplib2.Http()
-    result = h.request(url, 'DELETE')[0]
+    result = h.request(url, 'DELETE')[0] # TODO
 
     if result['status'] == 200:  # TODO: why 200 means to clear cache while '200' not
         # Reset the user's session
@@ -365,15 +377,39 @@ def fbdisconnect():  # TODO: put on login.html?
         # return response
         return jsonify(message='Failed to revoke token for given user.'), 400
 
-@app.route('/disconnect/')
+# Disconnect based on provider
+@app.route('/disconnect')
 def disconnect():
-    if login_session['provider'] == 'google+':
-        return redirect(url_for('gdisconnect'))
-    elif login_session['provider'] == 'facebook':
-        return redirect(url_for('fbdisconnect'))
-    else:
-        flash('You are not logged in to begin with!')
+    if 'provider' in login_session:
+        if login_session['provider'] == 'google':
+            gdisconnect()
+            del login_session['gplus_id']
+            del login_session['credentials']
+        if login_session['provider'] == 'facebook':
+            fbdisconnect()
+            del login_session['facebook_id']
+        del login_session['username']
+        del login_session['email']
+        del login_session['picture']
+        del login_session['user_id']
+        del login_session['provider']
+        flash("You have successfully been logged out.")
         return redirect(url_for('showRestaurants'))
+    else:
+        flash("You were not logged in")
+        return redirect(url_for('showRestaurants'))
+
+# @app.route('/disconnect/')
+# def disconnect():
+#     if 'provider' in login_session:
+#         if login_session['provider'] == 'google':
+#             gdisconnect()
+#             return redirect(url_for('gdisconnect'))
+#         elif login_session['provider'] == 'facebook':
+#             return redirect(url_for('fbdisconnect'))
+#     else:
+#         flash('You are not logged in to begin with!')
+#         return redirect(url_for('showRestaurants'))
 
 @app.route('/restaurants/JSON/')
 def restaurantsJSON():
