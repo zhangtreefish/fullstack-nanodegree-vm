@@ -90,11 +90,11 @@ mySecondUser = User(name='bob',email='fearlessluke8@gmail.com', picture='')
 
 session.add(mySecondUser)
 session.commit()
-# TODO: are the following necessary? Or the associations were already present?
-myFirstUser.restaurants.append(myFirstRestaurant)
-myFirstUser.conditions.append(myFirstCondition)
-myFirstUser.menus.append(myFirstMenu)
-myFirstUser.menus.append(mySecondMenu)
+# The following unnecessary: the associations were already present, see project.py newMenu()
+# myFirstUser.restaurants.append(myFirstRestaurant)
+# myFirstUser.conditions.append(myFirstCondition)
+# myFirstUser.menus.append(myFirstMenu)
+# myFirstUser.menus.append(mySecondMenu)
 session.add(myFirstUser)
 session.commit()
 
