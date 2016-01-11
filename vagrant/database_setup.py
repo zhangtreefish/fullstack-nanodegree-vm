@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 
 Base = declarative_base()
 
-# user:restaurant is one: many or many:many?; user:condition is one:many or many:many?; user:menu is there relationship?
+# TODO:user:restaurant is one: many; user:condition is one:many or many:many?; user:menu is there relationship?
 class User(Base):
     __tablename__ = 'user'
 

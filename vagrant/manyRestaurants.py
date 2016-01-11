@@ -81,16 +81,20 @@ session.commit()
 myFirstCondition.suggested_menus.append(diabeticMenu1)
 session.add(myFirstCondition)
 session.commit()
-laCon = session.query(Condition).all()
-print laCon[1].suggested_menus[1].name
+firstCon = session.query(Condition).first()
+print firstCon.name
+# print firstCon.suggested_menus.count()  # TODO: why diabeticMenu1 not in the list?
 
 myFirstUser = User(name='treefish',email='zhangtreefish@yahoo.com', picture='')
 mySecondUser = User(name='bob',email='fearlessluke8@gmail.com', picture='')
 
 session.add(mySecondUser)
 session.commit()
+# TODO: are the following necessary? Or the associations were already present?
 myFirstUser.restaurants.append(myFirstRestaurant)
 myFirstUser.conditions.append(myFirstCondition)
+myFirstUser.menus.append(myFirstMenu)
+myFirstUser.menus.append(mySecondMenu)
 session.add(myFirstUser)
 session.commit()
 
