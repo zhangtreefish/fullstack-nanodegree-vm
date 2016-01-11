@@ -520,6 +520,9 @@ def newMenu(restaurant_id):
                              price=request.form['newPrice'],
                              restaurant_id=restaurant_id,
                              user_id=laRestaurant.user_id)
+        myNewCondition = Condition(name=request.form['newConditions'])
+        session.add(myNewCondition)
+        myNewMenu.conditions.append(myNewCondition)
         session.add(myNewMenu)
         session.commit()
         flash('New menu ' + myNewMenu.name+' has been created!')
