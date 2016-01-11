@@ -203,7 +203,8 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += '">'
+    # output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['username'])
     print "done gconnect!"
     return output
@@ -262,7 +263,7 @@ def fbconnect():
         return response
     # Obtain the one-time authorization code from authorization server
     access_token = request.data
-    print 'code'
+
     print 'fb access_token:',access_token  # works
 
     # try:
@@ -287,12 +288,14 @@ def fbconnect():
     # print app_info.to_json() # why print not working?
     app_id = app_info['web']['app_id']
     app_secret = app_info['web']['app_secret']
-    token_url = 'https://graph.facebook.com/oauth/access_token?\
-                 grant_type=fb_exchange_token&\
-                 client_id=%s&\
-                 client_secret=%s&\
-                 fb_exchange_token=%s' % (app_id,app_secret,access_token)
-
+    print "app param:",app_id, app_secret
+    token_url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id,app_secret,access_token)
+    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
+        app_id, app_secret, access_token)
+    # token_url1 ='https://graph.facebook.com/v2.5/oauth/access_token?\
+    #             client_id=%s&\
+    #             client_secret=%s&\
+    #             code=%s'(app_id,app_secret,access_token)
     # redirect_uri = 'http://localhost:5000/'
     # facebook = OAuth2Session(client_id, redirect_uri=redirect_uri)
     # facebook = facebook_compliance_fix(facebook)
@@ -302,25 +305,27 @@ def fbconnect():
 
     h = httplib2.Http()
     # result = json.loads(h.request(token_url, 'GET')[1]) # loads:Deserialize to a Python object
-
-    result = h.request(token_url, 'GET')[1]
-    print 'result:',result # TODO nothign
+    result = h.request(url, 'GET')[1]
+    # result = h.request(token_url, 'GET')[1]
+    # print 'result:',result # TODO nothign
     token = result.split("&")[0]
-    print 'token:',token
+    print 'the token:',token
 
-    userinfo_url = 'https://graph.facebook.com/v2.5/me?%s&fields=name,id,email' % token
+    # url = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0&height=200&width=200' % token
+    info_url = 'https://graph.facebook.com/v2.5/me?%s&fields=name,id,email' % token
     h = httplib2.Http()
-    data=json.loads(h.request(userinfo_url, 'GET')[1])
+    data=json.loads(h.request(info_url, 'GET')[1])
+    print "data:", data
 
     login_session['provider'] = 'facebook'
     login_session['username'] = data['name']
     login_session['email'] = data['email']
     login_session['facebook_id'] = data['id']
 
-    user_pic_url = 'https://graph.facebook.com/v2.5/me/picture?%s \
-                    &redirect=0&height=200&width=200' % token
+    pic_url = 'https://graph.facebook.com/v2.5/me/picture?%s&redirect=0' % token
     h = httplib2.Http()
-    pic = json.loads(h.request(user_pic_url, 'GET'))
+    pic = json.loads(h.request(pic_url, 'GET')[1])
+    print "pic",pic
     login_session['picture'] = pic['data']['url']
 
     user_id = getUserId(login_session['email'])
@@ -335,7 +340,8 @@ def fbconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += '">'
+    # output += ' " style = "width: 100px; height: 100px;border-radius: 50px;-webkit-border-radius: 50px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['username'])
     print "done via FB!"
     return output

@@ -9,76 +9,17 @@
 {% block content %}
 	<body>
 		<div class='container'>
-			<section class='row'>
-			  	<div id='signInButton' class='col-xs-2'>
-			  		<!-- TODO:sign in does not redirect to restaurants page;sign out works.
-			  		with data-scope valued at openid email the questions are not asked; with the https value the questions asked.; both direct back to the login page.
-			  		if g-signin, sign in:internal server error 500 bu tline 47 output present; when clicking sign out,Uncaught TypeError: Cannot read property 'getAuthInstance' of undefined -->
-			  		<span class="g-signin2"
-			  		data-scope="https://www.googleapis.com/auth/plus.login"
-			  		data-clientid="65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com"
-			  		data-redirecturi="postmessage"
-			  		data-accesstype="offline"
-			  		data-cookiepolicy="single_host_origin"
-			  		data-onsuccess="onSignIn"
-			  		data-onfailure="onSignInFailure">
-			  		</span>
-			  	</div>
-			  	<div id='fbSignIn' class='col-xs-2'>
-				  	<fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
-		        	</fb:login-button>
-		        </div>
-		  	</section>
-		  	<section class='row'>
-		  		<div id='result' col-xs-2></div>
-		  		<div id='status' col-xs-2></div>
-			  	<div
-		            class="fb-like"
-		            data-share="true"
-		            data-width="450"
-		            data-show-faces="true">
-		        </div>
-		    </section>
+			<div id="fb-root"></div>
+			<script>
+				(function(d, s, id) {
+				  var js, fjs = d.getElementsByTagName(s)[0];
+				  if (d.getElementById(id)) return;
+				  js = d.createElement(s); js.id = id;
+				  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5&appId=511225495725100";
+				  fjs.parentNode.insertBefore(js, fjs);
+				}(document, 'script', 'facebook-jssdk'));
 
-			<button class="btn btn=info" type="submit" value="Sign Out">
-				<a href="#" onclick="signOut()">Sign Out the App</a>
-			</button>
-		</div>
-		<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
-		<script>
-			// for FB login
-            function statusChangeCallback(response) {
-                console.log('statusChangeCallback');
-                console.log(response);
-                // The response object is returned with a status field that lets the
-                // app know the current login status of the person.
-                // Full docs on the response object can be found in the documentation
-                // for FB.getLoginStatus().
-                if (response.status === 'connected') {
-                  // Logged into your app and Facebook.
-                  var accessToken = response.authResponse.accessToken;
-                  testAPI();
-                } else if (response.status === 'not_authorized') {
-                  // The person is logged into Facebook, but not your app.
-                  document.getElementById('status').innerHTML = 'Please log ' +
-                    'into this app.';
-                } else {
-                  // The person is not logged into Facebook, so we're not sure if
-                  // they are logged into this app or not.
-                  document.getElementById('status').innerHTML = 'Please log ' +
-                    'into Facebook.';
-                }
-              }
-
-              // This function is called when someone finishes with the Login
-              // Button.  See the onlogin handler attached to it in the sample
-              // code below.
-            // function checkLoginState() {
-            //     FB.getLoginStatus(function(response) {
-            //       statusChangeCallback(response);
-            //     });
-            //   }
-            function sendTokenToServer() {
+				function sendTokenToServer() {
                 // console.log(FB.getLoginStatus()); undefined
                 var access_token = FB.getAuthResponse()['accessToken'];
                 console.log(access_token);
@@ -111,6 +52,79 @@
 
                 console.log('signed in via FB!');
             }
+			</script>
+
+			<section class='row'>
+			  	<div id='signInButton' class='col-xs-2'>
+			  		<!-- TODO:sign in does not redirect to restaurants page;sign out works.
+			  		with data-scope valued at openid email the questions are not asked; with the https value the questions asked.; both direct back to the login page.
+			  		if g-signin, sign in:internal server error 500 bu tline 47 output present; when clicking sign out,Uncaught TypeError: Cannot read property 'getAuthInstance' of undefined -->
+			  		<span class="g-signin2"
+			  		data-scope="https://www.googleapis.com/auth/plus.login"
+			  		data-clientid="65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com"
+			  		data-redirecturi="postmessage"
+			  		data-accesstype="offline"
+			  		data-cookiepolicy="single_host_origin"
+			  		data-onsuccess="onSignIn"
+			  		data-onfailure="onSignInFailure">
+			  		</span>
+			  	</div>
+			  	<div id='fbSignIn' class='col-xs-1'>
+				  	<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="false" data-auto-logout-link="false" onlogin="sendTokenToServer();"></div>
+				  	<!-- <fb:login-button scope="public_profile,email" size="medium" onlogin="sendTokenToServer();">
+		        	</fb:login-button> -->
+		        </div>
+		  	</section>
+		  	<section class='row'>
+		  		<div id='result' class='col-xs-2'></div>
+		  		<div id='status' class='col-xs-2'></div>
+			  	<!-- <div
+		            class="fb-like"
+		            data-share="true"
+		            data-width="450"
+		            data-show-faces="true">
+		        </div> -->
+		    </section>
+
+<!-- 			<button class="btn btn=info" type="submit" value="Sign Out">
+				<a href="#" onclick="signOut()">Sign Out the App</a>
+			</button> -->
+		</div>
+		<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+		<script>
+			// for FB login
+            function statusChangeCallback(response) {
+                console.log('statusChangeCallback');
+                console.log(response);
+                // The response object is returned with a status field that lets the
+                // app know the current login status of the person.
+                // Full docs on the response object can be found in the documentation
+                // for FB.getLoginStatus().
+                if (response.status === 'connected') {
+                  // Logged into your app and Facebook.
+                  var accessToken = response.authResponse.accessToken;
+                  // testAPI();
+                } else if (response.status === 'not_authorized') {
+                  // The person is logged into Facebook, but not your app.
+                  document.getElementById('status').innerHTML = 'Please log ' +
+                    'into this app.';
+                } else {
+                  // The person is not logged into Facebook, so we're not sure if
+                  // they are logged into this app or not.
+                  document.getElementById('status').innerHTML = 'Please log ' +
+                    'into Facebook.';
+                }
+              }
+
+              // This function is called when someone finishes with the Login
+              // Button.  See the onlogin handler attached to it in the sample
+              // code below.
+            // function checkLoginState() {
+            //     FB.getLoginStatus(function(response) {
+            //       statusChangeCallback(response);
+            //     });
+            //   }
+
 
             window.fbAsyncInit = function() {
                 // init:initialize and setup the SDK;
@@ -128,23 +142,7 @@
                 });
             };
 
-            (function(d, s, id){
-                var js, fjs = d.getElementsByTagName(s)[0];
-                    if (d.getElementById(id)) {return;}
-                    js = d.createElement(s);
-                    js.id = id;
-                    js.src = "//connect.facebook.net/en_US/sdk.js";
-                    fjs.parentNode.insertBefore(js, fjs);
-                }(document, 'script', 'facebook-jssdk'));
 
-            function testAPI() {
-                console.log('Welcome!  Fetching your information.... ');
-                FB.api('/me', function(response) {
-                    console.log('Successful login for: ', response.name);
-                    document.getElementById('status').innerHTML =
-                    'Thanks for logging in to FB, ' + response.name + '!';
-                });
-            }
         	//for google+ login and logout
 			function signOut() {
 			    var auth2 = gapi.auth2.getAuthInstance();
