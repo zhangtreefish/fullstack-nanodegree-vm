@@ -38,11 +38,12 @@ G_CLIENT_ID = json.loads(
 
 APPLICATION_NAME = "Therapeutic Foods Restaurants"
 
-# Here I added id init, different from instructor's; removed; unique constraint
+# TODO:Here I attempted adding id init, but had to remove: 'IntegrityError: (IntegrityError) UNIQUE constraint failed'
 def createUser(login_session):
     newUser = User(name=login_session['username'],
                    email=login_session['email'],
                    picture=login_session['picture']
+                   # id=login_session['user_id']
                    )
     session.add(newUser)
     session.commit()
@@ -441,7 +442,7 @@ def restaurantNew():
         if login_session.get('username') is None:
             return redirect(url_for('showLogin'))
         else:
-            owner = createUser(login_session['user_id'])
+            owner = createUser(login_session)
             return render_template('newRestaurant.html',user=owner)
 
 @app.route('/restaurants/<int:restaurant_id>/edit/', methods=['POST','GET'])
