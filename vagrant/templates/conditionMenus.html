@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %} Menus {% endblock %}
+{% block head %}
+	{{super()}}
+{% endblock %}
+{% block content %}
+	<div>
+		<div class='panel panel-default'>
+		  	<button type='button' class='btn btn-success'>
+		  		<a href='{{url_for('newConditionMenu', condition_id=condition_id)}}'> Suggest a New Menu</a>
+		  	</button>
+		  	<br>
+		  	<br>
+		   	<div class='col-xs-12 panel-heading'>
+		   		<h2 style="text-align:center"> Menus for Condition {{condition.name.title()}} </h2>
+			</div>
+
+			{% for i in menus %}
+				<div class='row panel-body'>  <!--panel sections the menus -->
+				    <b class='col-xs-12'> {{i.course}}</b>
+			    	<span class='col-xs-9'>{{i.name}}</span>  <!--span keeps stuff close together -->
+			    	<span class='col-xs-3'style="text-align:right;color:green">{{i.price}}</span>
+					<i class='col-xs-12'>{{i.description}}</i>
+					<p> being offered at restaurant: {{i.restaurant_id}} {{i.restaurant.name}}</p>
+					<button class='btn btn-info'>
+						<a href='{{url_for('showMenus', restaurant_id=i.restaurant.id)}}'> Let us go!
+						</a>
+					</button>
+				</div>
+			{% endfor %}
+		</div>
+    </div>
+{% endblock %}
+
