@@ -172,4 +172,3 @@ print "kabocha?", kabocha_menu.description
 #                    picture='')
 # mySecondUser = User(name='bob', email='fearlessluke8@gmail.com',
 #                     picture='http://i.imgur.com/3L3kK3q.png?1')
-

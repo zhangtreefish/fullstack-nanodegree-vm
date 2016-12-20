@@ -84,6 +84,7 @@ class MenuItem(Base):
     description = Column(String(250))
     price = Column(String(8))
     course = Column(String(250))
+<<<<<<< HEAD
     restaurant_id = Column(Integer, ForeignKey('restaurant.id'),
                            nullable=False)
     restaurant = relationship('Restaurant', back_populates='menus')
@@ -110,4 +111,5 @@ class MenuItem(Base):
 # issue CREATE statements for all tables using MetaData object created during
 # declarative_base()
 engine = create_engine('sqlite:///restaurantmenuconditionuser.db', echo=True)
+
 Base.metadata.create_all(engine)
